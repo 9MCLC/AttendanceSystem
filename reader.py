@@ -108,6 +108,5 @@ def updateAttendanceList():
     
     print(newUsersList)
 
-
 if __name__ == "__main__":
     updateAttendanceList()
