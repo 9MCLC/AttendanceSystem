@@ -89,7 +89,7 @@ def registerNewUser():
             file_path = os.path.join(current_directory, 'QR Codes', f'{englishName}.png')
             newQR.save(file_path)
             if rrResult.get('isSuccess') is not None and rrResult.get('isSuccess'):
-                print('User registered, please take a photo of this QR Code, for future purposes, if you require a physical QR Code, please contact Office.')
+                print('User registered, please take a photo of this QR Code, for future purposes test, if you require a physical QR Code, please contact Office.')
 
 def updateAttendanceList():
     users = requests.get("http://192.168.0.118:5000/showUser")
