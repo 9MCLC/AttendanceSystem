@@ -44,13 +44,11 @@ class App:
             self.photo = ImageTk.PhotoImage(image=Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)))
             self.canvas.create_image(0, 0, image=self.photo, anchor=NW)
 
-        self.window.after(10, self.update)
+        self.window.after(1, self.update)
 
 def main():
     win = Tk()
-    width, height = win.winfo_screenwidth(), win.winfo_screenheight()
-    win.geometry('%dx%d+0+0' % (width,height))
-    win.title("Lobby")
+    win.geometry('%dx%d+0+0' % (win.winfo_screenwidth(), win.winfo_screenheight()))
 
     app = App(win, "Lobby")
 
