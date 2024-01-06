@@ -1,4 +1,6 @@
 from tkinter import *
+import tkinter as tk
+from tkinter import ttk
 import cv2
 from pyzbar.pyzbar import decode
 import requests
@@ -7,79 +9,50 @@ from datetime import datetime
 import json
 from PIL import Image, ImageTk
 
+class App:
+    def __init__(self, window, window_title):
+        self.window = window
+        self.window.title(window_title)
+
+        self.video_source = 0  # You may need to adjust the video source (0 for default camera)
+
+        self.vid = cv2.VideoCapture(self.video_source)
+
+        self.canvas_width = int(self.window.winfo_screenwidth() / 2) - 20
+        self.canvas_height = self.window.winfo_screenheight() - 20
+
+        self.canvas = Canvas(window, width=self.canvas_width, height=self.canvas_height)
+        self.canvas.grid(row=0, column=0, padx=10, pady=10)
+
+        registerButton = Button(window, text="Register", command=register_Page)
+        registerButton.place(x=1115, y=290, width=150)
+
+        manualAttendanceButton = Button(window, text="Manual Attendance", command=manualAttendance_Page)
+        manualAttendanceButton.place(x=1115, y=330, width=150)
+
+        delUserButton = Button(window, text="Remove User", command=delUser_Page)
+        delUserButton.place(x=1115, y=370, width=150)
+
+        self.update()
+
+        self.window.mainloop()
+
+    def update(self):
+        ret, frame = self.vid.read()
+
+        if ret:
+            self.photo = ImageTk.PhotoImage(image=Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)))
+            self.canvas.create_image(0, 0, image=self.photo, anchor=NW)
+
+        self.window.after(10, self.update)
+
 def main():
     win = Tk()
     width, height = win.winfo_screenwidth(), win.winfo_screenheight()
     win.geometry('%dx%d+0+0' % (width,height))
     win.title("Lobby")
 
-    leftFrame = LabelFrame(win, text="Left Frame")
-    leftFrame.grid(row=0, column=0)
-    leftframelabel = Label(leftFrame, padx = 300, pady = 350)
-    leftframelabel.pack()
-
-# #Camera (Working on it) [Error: Lagged in UI]
-
- 
-#     vid = cv2.VideoCapture(0) 
-
-#     width, height = 600, 800
-
-#     vid.set(cv2.CAP_PROP_FRAME_WIDTH, width) 
-#     vid.set(cv2.CAP_PROP_FRAME_HEIGHT, height) 
-
-
-
-#     def open_camera(openCam): 
-#         # Capture the video frame by frame 
-#         _, frame = vid.read()
-#         openCam = openCam
-#         barcodes=decode(frame)
-
-#         # Convert image from one color space to other 
-#         opencv_image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA) 
-
-#         # Capture the latest frame and transform to image 
-#         captured_image = Image.fromarray(opencv_image) 
-
-#         # Convert captured image to photoimage 
-#         photo_image = ImageTk.PhotoImage(image=captured_image) 
-
-#         # Displaying photoimage in the label 
-#         label_widget.photo_image = photo_image 
-
-#         # Configure image in the label 
-#         label_widget.configure(image=photo_image) 
-
-#         # Repeat the same process after every 10 seconds 
-#         label_widget.after(10, open_camera) 
-#         return openCam
-
-
-#     # Create a label and display it on app 
-#     label_widget = Label(leftFrame)
-#     label_widget.pack()
-#     openCam = None
-#     openCam = open_camera(openCam)
-
-    def registerPage():
-        register_Page()
-
-    def manualAttendancePage():
-        manualAttendance_Page()
-
-    def delUserPage():
-        delUser_Page()
-
-
-    registerButton = Button(win, text="Register", command=register_Page)
-    registerButton.place(x=1115, y=290, width=150)
-
-    manualAttendanceButton = Button(win, text="Manual Attendance", command=manualAttendance_Page)
-    manualAttendanceButton.place(x=1115, y=330, width=150)
-
-    delUserButton = Button(win, text="Remove User", command=delUser_Page)
-    delUserButton.place(x=1115, y=370, width=150)
+    app = App(win, "Lobby")
 
     win.mainloop()
 
@@ -138,7 +111,7 @@ def register_Page():
 
             sucess_label = Label(reg, text="Register Successfully", font=("Helvetica", 25))
             sucess_label.pack()
-            success_label.place(x=0, y=0)
+            sucess_label.place(x=0, y=0)
 
     submitButton = Button(reg, text="Submit", command=registerNewUser)
     submitButton.pack()
