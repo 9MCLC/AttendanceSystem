@@ -8,13 +8,17 @@ import qrcode
 from datetime import datetime
 import json
 from PIL import Image, ImageTk
+import os
 
 class App:
     def __init__(self, window, window_title):
+        self.apiEndpoint = "http://210.186.31.209:5000"
+
         self.window = window
         self.window.title(window_title)
 
-        self.video_source = 0  # You may need to adjust the video source (0 for default camera)
+        self.barcode_data = None
+        self.video_source = 0
 
         self.vid = cv2.VideoCapture(self.video_source)
 
@@ -43,6 +47,43 @@ class App:
         if ret:
             self.photo = ImageTk.PhotoImage(image=Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)))
             self.canvas.create_image(0, 0, image=self.photo, anchor=NW)
+        
+        barcodes = decode(frame)
+        if barcodes:
+            for barcode in barcodes:
+                if self.barcode_data != barcode.data.decode('utf-8'):
+                    self.barcode_data = barcode.data.decode('utf-8')
+                    print(self.barcode_data)
+                    verifyUser_label = Label(self.window, text="Verifying User", font=("Helvetica", 25))
+                    verifyUser_label.place(x=0, y=0)
+                    validUser = requests.get(f'{self.apiEndpoint}/validateUser', params={'UUID': self.barcode_data})
+                    rResult = validUser.json()
+                    if rResult.get('isExist') == True:
+                        UserInfo = rResult.get('result')
+                        englishName = UserInfo[0].get('EnglishName')
+                        chineseName = UserInfo[0].get('ChineseName')
+                        birthDate = datetime.strptime(UserInfo[0].get('BirthDate'), "%a, %d %b %Y %H:%M:%S %Z").strftime("%Y-%m-%d")
+                        verifyAttendance_label = Label(self.window, text=f"Verifying Attendance - {englishName}", font=("Helvetica", 25))
+                        verifyUser_label.destroy()
+                        verifyAttendance_label.place(x=0, y=0)
+                        validAttendance = requests.get(f'{self.apiEndpoint}/validateAttendance', params={'UUID': self.barcode_data})
+                        rrResult = validAttendance.json()
+                        if rrResult.get('isExist') == False:
+                            markAttendance_label = Label(self.window, text="Marking Attendance", font=("Helvetica", 25))
+                            verifyAttendance_label.destroy()
+                            markAttendance_label.place(x=0, y=0)
+                            markAttendance = requests.post(f'{self.apiEndpoint}/attendance', json={'UUID': self.barcode_data, "englishName": englishName, "chineseName": chineseName, "birthDate": birthDate})
+                            if markAttendance.status_code == 200:
+                                attendanceMarked_label = Label(self.window, text=f"Attendance Marked Successfully - {englishName}", font=("Helvetica", 25))
+                                markAttendance_label.destroy()
+                                attendanceMarked_label.place(x=0, y=0)
+                            else:
+                                print(f'Attendance Marking Failed, Error Occured, please contact Admin.')
+                        else:
+                            attendanceTiming = rrResult.get("result")[0].get('TimeOfAttendance')
+                            print(f'{englishName} - Attendance already marked at {datetime.strptime(attendanceTiming, "%a, %d %b %Y %H:%M:%S %Z").strftime("%H:%M:%S")}')
+                    else:
+                        print('QR Code is not a valid QR Code, if you did not register before, please register a new user.')
 
         self.window.after(1, self.update)
 
@@ -97,19 +138,33 @@ def register_Page():
         engName_input = engName_entry.get()
         chiName_input = chiName_entry.get()
         dob_input = dob_entry.get()
-    
-        body = {
-            "englishName": engName_input,
-            "chineseName": chiName_input,
-            "birthDate": dob_input
-        }
+        
+        if all([engName_input, chiName_input, dob_input]):
+            body = {
+                "englishName": engName_input,
+                "chineseName": chiName_input,
+                "birthDate": dob_input
+            }
 
-        registerUser = requests.post(f'http://192.168.0.119:5000/register', json=body)
-        if registerUser.status_code == 200:
+            registerUser = requests.post(f'http://210.186.31.209:5000/register', json=body)
+            if registerUser.status_code == 200:
+                rrResult = registerUser.json()
+                newQR = qrcode.make(rrResult.get('UUID'))
+                current_directory = os.path.dirname(os.path.abspath(__file__))
+                file_path = os.path.join(current_directory, 'QR Codes', f'{engName_input}.png')
+                newQR.save(file_path)
 
-            sucess_label = Label(reg, text="Register Successfully", font=("Helvetica", 25))
-            sucess_label.pack()
-            sucess_label.place(x=0, y=0)
+                sucess_label = Label(reg, text="Register Successfully", font=("Helvetica", 25))
+                sucess_label.pack()
+                sucess_label.place(x=0, y=0)
+
+                engName_entry.delete(0, END)
+                chiName_entry.delete(0, END)
+                dob_entry.delete(0, END)
+        else:
+            fail_label = Label(reg, text="Some information arent inserted, please double check.", font=("Helvetica", 25))
+            fail_label.pack()
+            fail_label.place(x=0, y=0)
 
     submitButton = Button(reg, text="Submit", command=registerNewUser)
     submitButton.pack()
