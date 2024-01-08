@@ -11,10 +11,13 @@ from PIL import Image, ImageTk
 
 class App:
     def __init__(self, window, window_title):
+        self.apiEndpoint = "http://192.168.0.119:5000"
+
         self.window = window
         self.window.title(window_title)
 
-        self.video_source = 0  # You may need to adjust the video source (0 for default camera)
+        self.barcode_data = None
+        self.video_source = 0
 
         self.vid = cv2.VideoCapture(self.video_source)
 
@@ -43,6 +46,35 @@ class App:
         if ret:
             self.photo = ImageTk.PhotoImage(image=Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)))
             self.canvas.create_image(0, 0, image=self.photo, anchor=NW)
+        
+        barcodes = decode(frame)
+        if barcodes:
+            for barcode in barcodes:
+                if self.barcode_data != barcode.data.decode('utf-8'):
+                    self.barcode_data = barcode.data.decode('utf-8')
+                    print(self.barcode_data)
+                    validUser = requests.get(f'{self.apiEndpoint}/validateUser', params={'UUID': self.barcode_data})
+                    rResult = validUser.json()
+                    if rResult.get('isExist') == True:
+                        UserInfo = rResult.get('result')
+                        englishName = UserInfo[0].get('EnglishName')
+                        chineseName = UserInfo[0].get('ChineseName')
+                        birthDate = datetime.strptime(UserInfo[0].get('BirthDate'), "%a, %d %b %Y %H:%M:%S %Z").strftime("%Y-%m-%d")
+
+                        validAttendance = requests.get(f'{self.apiEndpoint}/validateAttendance', params={'UUID': self.barcode_data})
+                        rrResult = validAttendance.json()
+                        if rrResult.get('isExist') == False:
+                            markAttendance = requests.post(f'{self.apiEndpoint}/attendance', json={'UUID': self.barcode_data, "englishName": englishName, "chineseName": chineseName, "birthDate": birthDate})
+                            if markAttendance.status_code == 200:
+                                print(f'{englishName} - Attendance Marked Successfully')
+                            else:
+                                print(f'Attendance Marking Failed, Error Occured, please contact Admin.')
+                        else:
+                            attendanceTiming = rrResult.get("result")[0].get('TimeOfAttendance')
+                            print(f'{englishName} - Attendance already marked at {datetime.strptime(attendanceTiming, "%a, %d %b %Y %H:%M:%S %Z").strftime("%H:%M:%S")}')
+                    else:
+                        print('QR Code is not a valid QR Code, if you did not register before, please register a new user.')
+                    print(f"QR Code data: {self.barcode_data}")
 
         self.window.after(1, self.update)
 
