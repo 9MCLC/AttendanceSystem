@@ -10,9 +10,10 @@ import json
 from PIL import Image, ImageTk
 import os
 
+apiEndpoint = "http://210.186.31.209:5000"
+
 class App:
     def __init__(self, window, window_title):
-        self.apiEndpoint = "http://210.186.31.209:5000"
 
         self.window = window
         self.window.title(window_title)
@@ -143,7 +144,7 @@ def register_Page():
                 "birthDate": dob_input
             }
 
-            registerUser = requests.post(f'http://210.186.31.209:5000/register', json=body)
+            registerUser = requests.post(f'{apiEndpoint}/register', json=body)
             if registerUser.status_code == 200:
                 rrResult = registerUser.json()
                 newQR = qrcode.make(rrResult.get('UUID'))
@@ -181,6 +182,46 @@ def nameList_Page():
     nameList_leftFrame = LabelFrame(nl, text="Name List", font=("Helvetica", 15))
     nameList_leftFrame.grid(row=0, column=0)
     nameList_leftframelabel = Label(nameList_leftFrame, padx = 500, pady = 300)
+
+
+    def create_table(data:list):
+        def selectItem(a):
+            curItem = table.focus()
+            print(table.item(curItem))
+
+        def filterByName(data:list, target):
+            if target == '':
+                filtered_data = data
+            else:
+                filtered_data = [row for row in data if row["EnglishName"].startswith(str(target))]
+
+            return filtered_data
+
+        table = ttk.Treeview(nameList_leftFrame, columns=list(data[0].keys()), show="headings")
+
+        for col in data[0].keys():
+            table.heading(col, text=col)
+            table.column(col, anchor="center", width= 300)
+            table.bind('<ButtonRelease-1>', selectItem)
+
+        searchCriteria = ''
+
+        for row in filterByName(data, searchCriteria):
+            table.insert("", "end", values=list(row.values()))
+
+        table.pack()
+    def reformatData(data:list):
+        returnData = []
+        for row in data:
+            row['BirthDate'] = datetime.strptime(row['BirthDate'], "%a, %d %b %Y %H:%M:%S %Z").strftime("%d/%m/%Y")
+            returnData.append(row)
+        return returnData
+
+    data = requests.get(f"{apiEndpoint}/showUser").json()
+    formattedData = reformatData(data['response'])
+
+    create_table(formattedData)
+
     nameList_leftframelabel.pack()
 
     markAttendanceButton = Button(nl, text="Mark Attendance")
