@@ -31,11 +31,8 @@ class App:
         registerButton = Button(window, text="Register", command=register_Page)
         registerButton.place(x=1115, y=290, width=150)
 
-        manualAttendanceButton = Button(window, text="Manual Attendance", command=manualAttendance_Page)
+        manualAttendanceButton = Button(window, text="Name List", command=nameList_Page)
         manualAttendanceButton.place(x=1115, y=330, width=150)
-
-        delUserButton = Button(window, text="Remove User", command=delUser_Page)
-        delUserButton.place(x=1115, y=370, width=150)
 
         self.update()
 
@@ -175,45 +172,26 @@ def register_Page():
 
     reg.mainloop()
 
-def manualAttendance_Page():
-    mlatd = Tk()
-    width, height = mlatd.winfo_screenwidth(), mlatd.winfo_screenheight()
-    mlatd.geometry('%dx%d+0+0' % (width,height))
-    mlatd.title("Manual Attendance")
+def nameList_Page():
+    nl = Tk()
+    width, height = nl.winfo_screenwidth(), nl.winfo_screenheight()
+    nl.geometry('%dx%d+0+0' % (width,height))
+    nl.title("Name List")
 
-    attendance_leftFrame = LabelFrame(mlatd, text="Attendance", font=("Helvetica", 15))
-    attendance_leftFrame.grid(row=0, column=0)
-    attendance_leftframelabel = Label(attendance_leftFrame, padx = 300, pady = 300)
-    attendance_leftframelabel.pack()
+    nameList_leftFrame = LabelFrame(nl, text="Name List", font=("Helvetica", 15))
+    nameList_leftFrame.grid(row=0, column=0)
+    nameList_leftframelabel = Label(nameList_leftFrame, padx = 500, pady = 300)
+    nameList_leftframelabel.pack()
 
-    markAttendanceButton = Button(mlatd, text="Mark Attendance")
+    markAttendanceButton = Button(nl, text="Mark Attendance")
     markAttendanceButton.place(x=1000, y=300, width=200)
 
-    unmarkAttendanceButton = Button(mlatd, text="Unmark Attendance")
+    unmarkAttendanceButton = Button(nl, text="Unmark Attendance")
     unmarkAttendanceButton.place(x=1000, y=350, width=200)
 
-    closeButton = Button(mlatd, text="close", command=mlatd.destroy)
+    closeButton = Button(nl, text="close", command=nl.destroy)
     closeButton.place(x=630, y=700, width=300)
 
-    mlatd.mainloop()
-
-def delUser_Page():
-    du = Tk()
-    width, height = du.winfo_screenwidth(), du.winfo_screenheight()
-    du.geometry('%dx%d+0+0' % (width,height))
-    du.title("Remove User")
-
-    delUser_leftFrame = LabelFrame(du, text="All User", font=("Helvetica", 15))
-    delUser_leftFrame.grid(row=0, column=0)
-    delUser_leftframelabel = Label(delUser_leftFrame, padx = 300, pady = 300)
-    delUser_leftframelabel.pack()
-
-    deleteButton = Button(du, text="Remove User")
-    deleteButton.place(x=1000, y=300, width=200)
-
-    closeButton = Button(du, text="close", command=du.destroy)
-    closeButton.place(x=630, y=700, width=300)
-
-    du.mainloop()
+    nl.mainloop()
 
 main()
