@@ -224,12 +224,6 @@ def nameList_Page():
 
     nameList_leftframelabel.pack()
 
-    markAttendanceButton = Button(nl, text="Mark Attendance")
-    markAttendanceButton.place(x=1000, y=300, width=200)
-
-    unmarkAttendanceButton = Button(nl, text="Unmark Attendance")
-    unmarkAttendanceButton.place(x=1000, y=350, width=200)
-
     closeButton = Button(nl, text="close", command=nl.destroy)
     closeButton.place(x=630, y=700, width=300)
 
