@@ -11,6 +11,7 @@ from PIL import Image, ImageTk
 import os
 
 apiEndpoint = "http://210.186.31.209:5000"
+# apiEndpoint = "http://192.168.0.119:5000"
 
 class App:
     def __init__(self, window, window_title):
@@ -184,30 +185,47 @@ def nameList_Page():
     nameList_leftframelabel = Label(nameList_leftFrame, padx = 500, pady = 300)
 
 
-    def create_table(data:list):
+    def create_table(data: list, searchCriteria: str = ''):
         def selectItem(a):
             curItem = table.focus()
             print(table.item(curItem))
 
-        def filterByName(data:list, target):
+        def filterByName(data: list, target):
             if target == '':
                 filtered_data = data
             else:
-                filtered_data = [row for row in data if row["EnglishName"].startswith(str(target))]
+                filtered_data = [row for row in data if row["EnglishName"].lower().startswith(str(target.lower()))]
 
             return filtered_data
 
+        def updateSearchCriteria(*args):
+            nonlocal searchCriteria
+            searchCriteria = search_entry.get().strip()
+            update_table()
+
+        def update_table():
+            for row in table.get_children():
+                table.delete(row)
+            
+            for row in filterByName(data, searchCriteria):
+                table.insert("", "end", values=list(row.values()))
+
         table = ttk.Treeview(nameList_leftFrame, columns=list(data[0].keys()), show="headings")
+
+        search_label = Label(nameList_leftFrame, text="Search:", font=("Helvetica", 12))
+        search_label.place(x=500, y=250)
+
+        search_entry = Entry(nameList_leftFrame)
+        search_entry.place(x=650, y=250, width=250)
+        search_entry.insert(0, searchCriteria)
+        search_entry.bind("<KeyRelease>", updateSearchCriteria)
 
         for col in data[0].keys():
             table.heading(col, text=col)
-            table.column(col, anchor="center", width= 300)
+            table.column(col, anchor="center", width=300)
             table.bind('<ButtonRelease-1>', selectItem)
 
-        searchCriteria = ''
-
-        for row in filterByName(data, searchCriteria):
-            table.insert("", "end", values=list(row.values()))
+        update_table()
 
         table.pack()
     def reformatData(data:list):
