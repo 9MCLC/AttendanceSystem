@@ -10,8 +10,8 @@ import json
 from PIL import Image, ImageTk
 import os
 
-# apiEndpoint = "http://210.186.31.209:5000"
-apiEndpoint = "http://192.168.0.119:5000"
+apiEndpoint = "http://210.186.31.209:5000"
+# apiEndpoint = "http://192.168.0.119:5000"
 
 class App:
     def __init__(self, window, window_title):
