@@ -10,7 +10,7 @@ import json
 from PIL import Image, ImageTk
 import os
 
-apiEndpoint = "http://210.186.31.209:5000"
+apiEndpoint = "http://175.144.67.177:5000"
 # apiEndpoint = "http://192.168.0.119:5000"
 
 class App:
@@ -186,9 +186,22 @@ def nameList_Page():
 
 
     def create_table(data: list, searchCriteria: str = ''):
+        def removeUser():
+            pass
+    
+        def unAttendUser():
+            pass
+        
         def selectItem(a):
             curItem = table.focus()
-            print(table.item(curItem))
+            # Create the buttons
+            removeButton = Button(nl, text="Remove User", command=removeUser)
+            removeButton.place(x=1215, y=290, width=150)
+
+            unAttendButton = Button(nl, text="Unattend", command=unAttendUser)
+            unAttendButton.place(x=1215, y=490, width=150)
+            return table.item(curItem)['values'][3]
+            
 
         def filterByName(data: list, target):
             if target == '':
@@ -210,7 +223,7 @@ def nameList_Page():
             for row in filterByName(data, searchCriteria):
                 table.insert("", "end", values=list(row.values()))
 
-        table = ttk.Treeview(nameList_leftFrame, columns=list(data[0].keys()), show="headings")
+        table = ttk.Treeview(nameList_leftFrame, columns=list(data[0].keys()), show="headings", height=10)
 
         search_label = Label(nameList_leftFrame, text="Search:", font=("Helvetica", 12))
         search_label.place(x=500, y=250)
@@ -228,6 +241,7 @@ def nameList_Page():
         update_table()
 
         table.pack()
+    
     def reformatData(data:list):
         returnData = []
         for row in data:
