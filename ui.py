@@ -155,7 +155,7 @@ def register_Page():
 
                 sucess_label = Label(reg, text="Register Successfully", font=("Helvetica", 25))
                 sucess_label.pack()
-                sucess_label.place(x=0, y=0)
+                sucess_label.place(x=620, y=550)
 
                 engName_entry.delete(0, END)
                 chiName_entry.delete(0, END)
@@ -163,7 +163,7 @@ def register_Page():
         else:
             fail_label = Label(reg, text="Some information arent inserted, please double check.", font=("Helvetica", 25))
             fail_label.pack()
-            fail_label.place(x=0, y=0)
+            fail_label.place(x=380, y=550)
 
     submitButton = Button(reg, text="Submit", command=registerNewUser)
     submitButton.pack()
@@ -196,10 +196,10 @@ def nameList_Page():
             curItem = table.focus()
             # Create the buttons
             removeButton = Button(nl, text="Remove User", command=removeUser)
-            removeButton.place(x=1215, y=290, width=150)
+            removeButton.place(x=1300, y=350, width=150)
 
             unAttendButton = Button(nl, text="Unattend", command=unAttendUser)
-            unAttendButton.place(x=1215, y=490, width=150)
+            unAttendButton.place(x=1300, y=400, width=150)
             return table.item(curItem)['values'][3]
             
 
@@ -222,14 +222,14 @@ def nameList_Page():
             
             for row in filterByName(data, searchCriteria):
                 table.insert("", "end", values=list(row.values()))
-
-        table = ttk.Treeview(nameList_leftFrame, columns=list(data[0].keys()), show="headings", height=10)
+        
+        table = ttk.Treeview(nameList_leftFrame, columns=list(data[0].keys()), show="headings", height=25)
 
         search_label = Label(nameList_leftFrame, text="Search:", font=("Helvetica", 12))
-        search_label.place(x=500, y=250)
+        search_label.place(x=500, y=550)
 
         search_entry = Entry(nameList_leftFrame)
-        search_entry.place(x=650, y=250, width=250)
+        search_entry.place(x=650, y=550, width=250)
         search_entry.insert(0, searchCriteria)
         search_entry.bind("<KeyRelease>", updateSearchCriteria)
 
@@ -237,6 +237,7 @@ def nameList_Page():
             table.heading(col, text=col)
             table.column(col, anchor="center", width=300)
             table.bind('<ButtonRelease-1>', selectItem)
+            
 
         update_table()
 
