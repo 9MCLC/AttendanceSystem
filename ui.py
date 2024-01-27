@@ -158,7 +158,7 @@ def register_Page():
                 sucess_label.place(x=620, y=550)
 
                 engName_entry.delete(0, END)
-                chiName_entry.delete(0, END)
+                chiName_entry.delete(0, END) 
                 dob_entry.delete(0, END)
         else:
             fail_label = Label(reg, text="Some information arent inserted, please double check.", font=("Helvetica", 25))
