@@ -157,7 +157,7 @@ def register_Page():
                 sucess_label.pack()
                 sucess_label.place(x=620, y=550)
 
-                engName_entry.delete(0, END)
+                engName_entry.delete(0, END) 
                 chiName_entry.delete(0, END)
                 dob_entry.delete(0, END)
         else:
