@@ -10,8 +10,8 @@ import json
 from PIL import Image, ImageTk
 import os
 
-apiEndpoint = "http://175.144.67.177:5000"
-# apiEndpoint = "http://192.168.0.119:5000"
+# apiEndpoint = "http://175.144.67.177:5000"
+apiEndpoint = "http://192.168.0.119:5000"
 
 class App:
     def __init__(self, window, window_title):
@@ -55,7 +55,7 @@ class App:
                     print(self.barcode_data)
                     verifyUser_label = Label(self.window, text="Verifying User", font=("Helvetica", 25))
                     verifyUser_label.place(x=0, y=0)
-                    validUser = requests.get(f'{self.apiEndpoint}/validateUser', params={'UUID': self.barcode_data})
+                    validUser = requests.get(f'{apiEndpoint}/validateUser', params={'UUID': self.barcode_data})
                     rResult = validUser.json()
                     if rResult.get('isExist') == True:
                         UserInfo = rResult.get('result')
@@ -65,13 +65,13 @@ class App:
                         verifyAttendance_label = Label(self.window, text=f"Verifying Attendance - {englishName}", font=("Helvetica", 25))
                         verifyUser_label.destroy()
                         verifyAttendance_label.place(x=0, y=0)
-                        validAttendance = requests.get(f'{self.apiEndpoint}/validateAttendance', params={'UUID': self.barcode_data})
+                        validAttendance = requests.get(f'{apiEndpoint}/validateAttendance', params={'UUID': self.barcode_data})
                         rrResult = validAttendance.json()
                         if rrResult.get('isExist') == False:
                             markAttendance_label = Label(self.window, text="Marking Attendance", font=("Helvetica", 25))
                             verifyAttendance_label.destroy()
                             markAttendance_label.place(x=0, y=0)
-                            markAttendance = requests.post(f'{self.apiEndpoint}/attendance', json={'UUID': self.barcode_data, "englishName": englishName, "chineseName": chineseName, "birthDate": birthDate})
+                            markAttendance = requests.post(f'{apiEndpoint}/attendance', json={'UUID': self.barcode_data, "englishName": englishName, "chineseName": chineseName, "birthDate": birthDate})
                             if markAttendance.status_code == 200:
                                 attendanceMarked_label = Label(self.window, text=f"Attendance Marked Successfully - {englishName}", font=("Helvetica", 25))
                                 markAttendance_label.destroy()
@@ -187,20 +187,67 @@ def nameList_Page():
 
     def create_table(data: list, searchCriteria: str = ''):
         def removeUser():
-            pass
+            def deleteUser(uuid):
+                cfm.destroy()
+                requests.delete(f'{apiEndpoint}/unmarkAttendance', json={'UUID': uuid})
+            if table.selection():
+                cfm = Tk()
+                width, height = cfm.winfo_screenwidth()/8, cfm.winfo_screenwidth()/16
+                center_x, center_y = int((cfm.winfo_screenwidth() - width) / 2), int((cfm.winfo_screenheight() - height) / 2)
+                cfm.geometry('%dx%d+%d+%d' % (width, height, center_x, center_y))
+                cfm.title("Confirmation")
+                uuid = table.item(table.focus())['values'][3]
+                name = table.item(table.focus())['values'][2]
+                
+                confirmationMessage_label = Label(cfm, text="Are you sure to remove user?", font=("Arial", 10))
+                confirmationMessage_label.place(x=0, y=0)
+
+                confirmationDetails_label = Label(cfm, text=f"Name: {name}", font=("Arial", 10))
+                confirmationDetails_label.place(x=0, y=height/3)
+
+                confirmButton = Button(cfm, text="Yes", command=deleteUser(uuid))
+                confirmButton.place(x=0, y=height/3*2, width=width/2)
     
+                closeButton = Button(cfm, text="Close", command=cfm.destroy)
+                closeButton.place(x=width/2, y=height/3*2, width=width/2)
+                cfm.mainloop()
+            else:
+                selectionWarning_label = Label(nl, text="Please select a user", font=("Arial", 10))
+                selectionWarning_label.place(x=1000, y=500)
+                selectionWarning_label.after(5000, selectionWarning_label.destroy())
+
+
         def unAttendUser():
-            pass
+            def clearUser():
+                cfm.destroy()
+                requests.delete(f'{apiEndpoint}/unmarkAttendance', json={'UUID': uuid})
+            if table.selection():
+                uuid = table.item(table.focus())['values'][3]
+                name = table.item(table.focus())['values'][2]
+                cfm = Tk()
+                width, height = cfm.winfo_screenwidth()/8, cfm.winfo_screenwidth()/16
+                center_x, center_y = int((cfm.winfo_screenwidth() - width) / 2), int((cfm.winfo_screenheight() - height) / 2)
+                cfm.geometry('%dx%d+%d+%d' % (width, height, center_x, center_y))
+                cfm.title("Confirmation")
+
+                confirmationMessage_label = Label(cfm, text="Remove user's attendance", font=("Arial", 10))
+                confirmationMessage_label.place(x=0, y=0)
+
+                confirmationDetails_label = Label(cfm, text=f"Name: {name}", font=("Arial", 10))
+                confirmationDetails_label.place(x=0, y=30)
+
+                confirmButton = Button(cfm, text="Yes", command=clearUser)
+                confirmButton.place(x=0, y=60, width=width/2)
+
+                closeButton = Button(cfm, text="Close", command=cfm.destroy)
+                closeButton.place(x=width/2, y=60, width=width/2)
+                
+                cfm.mainloop()
+            else:
+                pass
         
         def selectItem(a):
-            curItem = table.focus()
-            # Create the buttons
-            removeButton = Button(nl, text="Remove User", command=removeUser)
-            removeButton.place(x=1300, y=350, width=150)
-
-            unAttendButton = Button(nl, text="Unattend", command=unAttendUser)
-            unAttendButton.place(x=1300, y=400, width=150)
-            return table.item(curItem)['values'][3]
+            pass
             
 
         def filterByName(data: list, target):
@@ -233,12 +280,17 @@ def nameList_Page():
         search_entry.insert(0, searchCriteria)
         search_entry.bind("<KeyRelease>", updateSearchCriteria)
 
+        removeButton = Button(nl, text="Remove User", command=removeUser)
+        removeButton.place(x=1300, y=350, width=150)
+
+        unAttendButton = Button(nl, text="Unattend", command=unAttendUser)
+        unAttendButton.place(x=1300, y=400, width=150)
+
         for col in data[0].keys():
             table.heading(col, text=col)
             table.column(col, anchor="center", width=300)
             table.bind('<ButtonRelease-1>', selectItem)
             
-
         update_table()
 
         table.pack()
