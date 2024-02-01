@@ -10,8 +10,8 @@ import json
 from PIL import Image, ImageTk
 import os
 
-# apiEndpoint = "http://175.144.67.177:5000"
-apiEndpoint = "http://192.168.0.119:5000"
+apiEndpoint = "http://60.48.85.4:5000"
+# apiEndpoint = "http://192.168.0.119:5000"
 
 class App:
     def __init__(self, window, window_title):
@@ -187,16 +187,19 @@ def nameList_Page():
 
     def create_table(data: list, searchCriteria: str = ''):
         def removeUser():
-            def deleteUser(uuid):
+            def deleteUser():
+                uuid = table.item(table.focus())['values'][3]
+                requests.delete(f'{apiEndpoint}/removeUser', json={'UUID': uuid})
                 cfm.destroy()
-                requests.delete(f'{apiEndpoint}/unmarkAttendance', json={'UUID': uuid})
+                nl.destroy()
+                nameList_Page()
             if table.selection():
                 cfm = Tk()
                 width, height = cfm.winfo_screenwidth()/8, cfm.winfo_screenwidth()/16
                 center_x, center_y = int((cfm.winfo_screenwidth() - width) / 2), int((cfm.winfo_screenheight() - height) / 2)
                 cfm.geometry('%dx%d+%d+%d' % (width, height, center_x, center_y))
                 cfm.title("Confirmation")
-                uuid = table.item(table.focus())['values'][3]
+                
                 name = table.item(table.focus())['values'][2]
                 
                 confirmationMessage_label = Label(cfm, text="Are you sure to remove user?", font=("Arial", 10))
@@ -205,7 +208,7 @@ def nameList_Page():
                 confirmationDetails_label = Label(cfm, text=f"Name: {name}", font=("Arial", 10))
                 confirmationDetails_label.place(x=0, y=height/3)
 
-                confirmButton = Button(cfm, text="Yes", command=deleteUser(uuid))
+                confirmButton = Button(cfm, text="Yes", command=deleteUser)
                 confirmButton.place(x=0, y=height/3*2, width=width/2)
     
                 closeButton = Button(cfm, text="Close", command=cfm.destroy)
@@ -214,15 +217,13 @@ def nameList_Page():
             else:
                 selectionWarning_label = Label(nl, text="Please select a user", font=("Arial", 10))
                 selectionWarning_label.place(x=1000, y=500)
-                selectionWarning_label.after(5000, selectionWarning_label.destroy())
-
 
         def unAttendUser():
             def clearUser():
-                cfm.destroy()
-                requests.delete(f'{apiEndpoint}/unmarkAttendance', json={'UUID': uuid})
-            if table.selection():
                 uuid = table.item(table.focus())['values'][3]
+                requests.delete(f'{apiEndpoint}/unmarkAttendance', json={'UUID': uuid})
+                cfm.destroy()
+            if table.selection():
                 name = table.item(table.focus())['values'][2]
                 cfm = Tk()
                 width, height = cfm.winfo_screenwidth()/8, cfm.winfo_screenwidth()/16
@@ -237,6 +238,38 @@ def nameList_Page():
                 confirmationDetails_label.place(x=0, y=30)
 
                 confirmButton = Button(cfm, text="Yes", command=clearUser)
+                confirmButton.place(x=0, y=60, width=width/2)
+
+                closeButton = Button(cfm, text="Close", command=cfm.destroy)
+                closeButton.place(x=width/2, y=60, width=width/2)
+                
+                cfm.mainloop()
+            else:
+                pass
+
+        def AttendUser():
+            def addUser():
+                uuid = table.item(table.focus())['values'][3]
+                engName = table.item(table.focus())['values'][2]
+                chiName = table.item(table.focus())['values'][1]
+                dob = datetime.strptime(table.item(table.focus())['values'][0], "%d/%m/%Y").strftime("%Y-%m-%d")
+                requests.post(f'{apiEndpoint}/attendance', json={'UUID': uuid, 'englishName': engName, 'chineseName': chiName, 'birthDate': dob})
+                cfm.destroy()
+            if table.selection():
+                name = table.item(table.focus())['values'][2]
+                cfm = Tk()
+                width, height = cfm.winfo_screenwidth()/8, cfm.winfo_screenwidth()/16
+                center_x, center_y = int((cfm.winfo_screenwidth() - width) / 2), int((cfm.winfo_screenheight() - height) / 2)
+                cfm.geometry('%dx%d+%d+%d' % (width, height, center_x, center_y))
+                cfm.title("Confirmation")
+
+                confirmationMessage_label = Label(cfm, text="Mark user's attendance", font=("Arial", 10))
+                confirmationMessage_label.place(x=0, y=0)
+
+                confirmationDetails_label = Label(cfm, text=f"Name: {name}", font=("Arial", 10))
+                confirmationDetails_label.place(x=0, y=30)
+
+                confirmButton = Button(cfm, text="Yes", command=addUser)
                 confirmButton.place(x=0, y=60, width=width/2)
 
                 closeButton = Button(cfm, text="Close", command=cfm.destroy)
@@ -285,6 +318,9 @@ def nameList_Page():
 
         unAttendButton = Button(nl, text="Unattend", command=unAttendUser)
         unAttendButton.place(x=1300, y=400, width=150)
+
+        AttendButton = Button(nl, text="Attend", command=AttendUser)
+        AttendButton.place(x=1300, y=550, width=150)
 
         for col in data[0].keys():
             table.heading(col, text=col)
