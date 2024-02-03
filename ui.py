@@ -18,7 +18,7 @@ elif env == 'prod':
     port = 5000
 
 apiEndpoint = f"http://60.48.85.4:{port}"
-# apiEndpoint = f"http://192.168.0.119:{port}"
+apiEndpoint = f"http://192.168.0.119:5001"
 
 class App:
     def __init__(self, window, window_title):
@@ -35,7 +35,7 @@ class App:
         self.canvas_height = self.window.winfo_screenheight() - 20
 
         self.canvas = Canvas(window, width=self.canvas_width, height=self.canvas_height)
-        self.canvas.grid(row=0, column=0, padx=10, pady=10)
+        self.canvas.grid(row=0, column=0, pady=(((self.canvas_height)-(self.canvas_width/4*3))/2-40))
 
         registerButton = Button(window, text="Register", command=register_Page)
         registerButton.place(x=1115, y=290, width=150)
@@ -51,7 +51,7 @@ class App:
         ret, frame = self.vid.read()
 
         if ret:
-            self.photo = ImageTk.PhotoImage(image=Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)))
+            self.photo = ImageTk.PhotoImage(image=Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)).resize((self.canvas_width,int(self.canvas_width /4*3))))
             self.canvas.create_image(0, 0, image=self.photo, anchor=NW)
         
         barcodes = decode(frame)
@@ -120,25 +120,29 @@ def register_Page():
     engName_entry.pack()
     engName_entry.place(x=650, y=250, width=250)
 
-    chiName_label = Label(reg, text="Chinese Name:", font=("Helvetica", 12))
+    chiName_label = Label(reg, text="Phone Number:", font=("Helvetica", 12))
     chiName_label.pack()
-    chiName_label.place(x=500, y=310)
+    chiName_label.place(x=500, y=350)
 
     chiName_entry = Entry(reg)
     chiName_entry.pack()
-    chiName_entry.place(x=650, y=310, width=250)
+    chiName_entry.place(x=650, y=350, width=250)
+
+    chiName_label = Label(reg, text="(Example: XXX-XXXXXXXX)", font=("Helvetica", 10))
+    chiName_label.pack()
+    chiName_label.place(x=650, y=380)
 
     dob_label = Label(reg, text="Date Of Birth:", font=("Helvetica", 12))
     dob_label.pack()
-    dob_label.place(x=500, y=370)
+    dob_label.place(x=500, y=450)
 
     dob_entry = Entry(reg)
     dob_entry.pack()
-    dob_entry.place(x=650, y=370, width=250)
+    dob_entry.place(x=650, y=450, width=250)
 
-    dob_label = Label(reg, text="(YYYY-MM-DD)", font=("Helvetica", 10))
+    dob_label = Label(reg, text="(Example: YYYY-MM-DD)", font=("Helvetica", 10))
     dob_label.pack()
-    dob_label.place(x=920, y=370)    
+    dob_label.place(x=650, y=480)    
 
     def registerNewUser():
         engName_input = engName_entry.get()
@@ -174,7 +178,7 @@ def register_Page():
 
     submitButton = Button(reg, text="Submit", command=registerNewUser)
     submitButton.pack()
-    submitButton.place(x=700, y=430, width=150)
+    submitButton.place(x=700, y=600, width=150)
 
     closeButton = Button(reg, text="close", command=reg.destroy)
     closeButton.place(x=630, y=700, width=300)
