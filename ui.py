@@ -6,7 +6,6 @@ from pyzbar.pyzbar import decode
 import requests
 import qrcode
 from datetime import datetime
-import json
 from PIL import Image, ImageTk
 import os
 import re
@@ -89,11 +88,11 @@ class App:
 def main():
     win = Tk()
     win.geometry('%dx%d+0+0' % (win.winfo_screenwidth(), win.winfo_screenheight()))
-    def toggle_fullscreen(event=None):
+    def toggle_fullscreen():
         state = not win.attributes('-fullscreen')
         win.attributes('-fullscreen', state)
 
-    def on_escape(event):
+    def on_escape():
         win.attributes('-fullscreen', False)
     win.attributes('-fullscreen', True)
 
@@ -109,11 +108,11 @@ def register_Page():
     reg = Tk()
     width, height = reg.winfo_screenwidth(), reg.winfo_screenheight()
     reg.geometry('%dx%d+0+0' % (width,height))
-    def toggle_fullscreen(event=None):
+    def toggle_fullscreen():
         state = not reg.attributes('-fullscreen')
         reg.attributes('-fullscreen', state)
 
-    def on_escape(event):
+    def on_escape():
         reg.attributes('-fullscreen', False)
     reg.attributes('-fullscreen', True)
 
@@ -209,11 +208,11 @@ def nameList_Page():
     nl.geometry('%dx%d+0+0' % (width,height))
     nl.title("Name List")
     nl.geometry('%dx%d+0+0' % (width,height))
-    def toggle_fullscreen(event=None):
+    def toggle_fullscreen():
         state = not nl.attributes('-fullscreen')
         nl.attributes('-fullscreen', state)
 
-    def on_escape(event):
+    def on_escape():
         nl.attributes('-fullscreen', False)
     nl.attributes('-fullscreen', True)
 
