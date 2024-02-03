@@ -18,7 +18,7 @@ elif env == 'prod':
     port = 5000
 
 apiEndpoint = f"http://60.48.85.4:{port}"
-apiEndpoint = f"http://192.168.0.119:{port}"
+# apiEndpoint = f"http://192.168.0.119:{port}"
 
 class App:
     def __init__(self, window, window_title):
@@ -373,13 +373,13 @@ def nameList_Page():
         search_entry.bind("<KeyRelease>", updateSearchCriteria)
 
         removeButton = Button(nl, text="Remove User", command=removeUser)
-        removeButton.place(x=1300, y=350, width=150)
+        removeButton.place(relx=0.8, rely=0.2, width=150)
 
         unAttendButton = Button(nl, text="Unattend", command=unAttendUser)
-        unAttendButton.place(x=1300, y=400, width=150)
+        unAttendButton.place(relx=0.8, rely=0.3, width=150)
 
         AttendButton = Button(nl, text="Attend", command=AttendUser)
-        AttendButton.place(x=1300, y=550, width=150)
+        AttendButton.place(relx=0.8, rely=0.4, width=150)
             
         update_table()
 
