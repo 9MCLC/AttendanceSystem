@@ -17,8 +17,8 @@ if env == 'dev':
 elif env == 'prod':
     port = 5000
 
-# apiEndpoint = f"http://60.48.85.4:{port}"
-apiEndpoint = f"http://192.168.0.119:5001"
+apiEndpoint = f"http://60.48.85.4:{port}"
+apiEndpoint = f"http://192.168.0.119:{port}"
 
 class App:
     def __init__(self, window, window_title):
@@ -88,11 +88,11 @@ class App:
 def main():
     win = Tk()
     win.geometry('%dx%d+0+0' % (win.winfo_screenwidth(), win.winfo_screenheight()))
-    def toggle_fullscreen():
+    def toggle_fullscreen(event = None):
         state = not win.attributes('-fullscreen')
         win.attributes('-fullscreen', state)
 
-    def on_escape():
+    def on_escape(event):
         win.attributes('-fullscreen', False)
     win.attributes('-fullscreen', True)
 
@@ -108,11 +108,11 @@ def register_Page():
     reg = Tk()
     width, height = reg.winfo_screenwidth(), reg.winfo_screenheight()
     reg.geometry('%dx%d+0+0' % (width,height))
-    def toggle_fullscreen():
+    def toggle_fullscreen(event = None):
         state = not reg.attributes('-fullscreen')
         reg.attributes('-fullscreen', state)
 
-    def on_escape():
+    def on_escape(event):
         reg.attributes('-fullscreen', False)
     reg.attributes('-fullscreen', True)
 
@@ -208,11 +208,11 @@ def nameList_Page():
     nl.geometry('%dx%d+0+0' % (width,height))
     nl.title("Name List")
     nl.geometry('%dx%d+0+0' % (width,height))
-    def toggle_fullscreen():
+    def toggle_fullscreen(event = None):
         state = not nl.attributes('-fullscreen')
         nl.attributes('-fullscreen', state)
 
-    def on_escape():
+    def on_escape(event):
         nl.attributes('-fullscreen', False)
     nl.attributes('-fullscreen', True)
 
