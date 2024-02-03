@@ -9,15 +9,16 @@ from datetime import datetime
 import json
 from PIL import Image, ImageTk
 import os
+import re
 
 port = None
-env = input('input your env: "dev or prod"')
+env = input('input your env: "dev or prod" ')
 if env == 'dev':
     port = 5001
 elif env == 'prod':
     port = 5000
 
-apiEndpoint = f"http://60.48.85.4:{port}"
+# apiEndpoint = f"http://60.48.85.4:{port}"
 apiEndpoint = f"http://192.168.0.119:5001"
 
 class App:
@@ -31,17 +32,17 @@ class App:
 
         self.vid = cv2.VideoCapture(self.video_source)
 
-        self.canvas_width = int(self.window.winfo_screenwidth() / 2) - 20
-        self.canvas_height = self.window.winfo_screenheight() - 20
+        self.canvas_width = int(self.window.winfo_screenwidth() / 2)
+        self.canvas_height = self.window.winfo_screenheight()
 
         self.canvas = Canvas(window, width=self.canvas_width, height=self.canvas_height)
         self.canvas.grid(row=0, column=0, pady=(((self.canvas_height)-(self.canvas_width/4*3))/2-40))
 
         registerButton = Button(window, text="Register", command=register_Page)
-        registerButton.place(x=1115, y=290, width=150)
+        registerButton.place(relx=0.85, rely=0.2, width=150)
 
         manualAttendanceButton = Button(window, text="Name List", command=nameList_Page)
-        manualAttendanceButton.place(x=1115, y=330, width=150)
+        manualAttendanceButton.place(relx=0.85, rely=0.3, width=150)
 
         self.update()
 
@@ -59,43 +60,45 @@ class App:
             for barcode in barcodes:
                 if self.barcode_data != barcode.data.decode('utf-8'):
                     self.barcode_data = barcode.data.decode('utf-8')
-                    print(self.barcode_data)
-                    verifyUser_label = Label(self.window, text="Verifying User", font=("Helvetica", 25))
-                    verifyUser_label.place(x=0, y=0)
-                    validUser = requests.get(f'{apiEndpoint}/validateUser', params={'UUID': self.barcode_data})
-                    rResult = validUser.json()
-                    if rResult.get('isExist') == True:
-                        UserInfo = rResult.get('result')
-                        englishName = UserInfo[0].get('EnglishName')
-                        chineseName = UserInfo[0].get('ChineseName')
-                        birthDate = datetime.strptime(UserInfo[0].get('BirthDate'), "%a, %d %b %Y %H:%M:%S %Z").strftime("%Y-%m-%d")
-                        verifyAttendance_label = Label(self.window, text=f"Verifying Attendance - {englishName}", font=("Helvetica", 25))
-                        verifyUser_label.destroy()
-                        verifyAttendance_label.place(x=0, y=0)
-                        validAttendance = requests.get(f'{apiEndpoint}/validateAttendance', params={'UUID': self.barcode_data})
-                        rrResult = validAttendance.json()
-                        if rrResult.get('isExist') == False:
-                            markAttendance_label = Label(self.window, text="Marking Attendance", font=("Helvetica", 25))
-                            verifyAttendance_label.destroy()
-                            markAttendance_label.place(x=0, y=0)
-                            markAttendance = requests.post(f'{apiEndpoint}/attendance', json={'UUID': self.barcode_data, "englishName": englishName, "chineseName": chineseName, "birthDate": birthDate})
+                    userExists = requests.get(f'{apiEndpoint}/getUser', params={'UUID': self.barcode_data})
+                    userExistsResult = userExists.json()
+                    if userExistsResult.get('rowCount') == 1:
+                        UserInfo = userExistsResult.get('users')[0]
+                        name = UserInfo.get('Name')
+                        attendanceExists = requests.get(f'{apiEndpoint}/getAttendance', params={'UUID': self.barcode_data})
+                        attendanceExistsResult = attendanceExists.json()
+                        if attendanceExistsResult.get('rowCount') == 0:
+                            markAttendance = requests.post(f'{apiEndpoint}/addAttendance', json={'UUID': self.barcode_data, "name": name})
                             if markAttendance.status_code == 200:
-                                attendanceMarked_label = Label(self.window, text=f"Attendance Marked Successfully - {englishName}", font=("Helvetica", 25))
-                                markAttendance_label.destroy()
-                                attendanceMarked_label.place(x=0, y=0)
+                                self.show_temporary_label(f"{name} - Attendance Marked Successfully ")
                             else:
-                                print(f'Attendance Marking Failed, Error Occured, please contact Admin.')
+                                self.show_temporary_label('Attendance Marking Failed, Error Occured, please contact Admin.')
                         else:
-                            attendanceTiming = rrResult.get("result")[0].get('TimeOfAttendance')
-                            print(f'{englishName} - Attendance already marked at {datetime.strptime(attendanceTiming, "%a, %d %b %Y %H:%M:%S %Z").strftime("%H:%M:%S")}')
+                            attendanceTiming = attendanceExistsResult.get("result")[0].get('TimeOfAttendance')
+                            self.show_temporary_label(f'{name} - Attendance already marked at {datetime.strptime(attendanceTiming, "%a, %d %b %Y %H:%M:%S %Z").strftime("%H:%M:%S")}')
                     else:
-                        print('QR Code is not a valid QR Code, if you did not register before, please register a new user.')
+                        self.show_temporary_label('QR Code is not a valid QR Code, if you did not register before, please register a new user.')   
 
         self.window.after(1, self.update)
+
+    def show_temporary_label(self, message):
+        label = Label(self.window, text=message, font=("Helvetica", 25))
+        label.place(x=0, y=0)
+        self.window.after(3000, label.destroy)
 
 def main():
     win = Tk()
     win.geometry('%dx%d+0+0' % (win.winfo_screenwidth(), win.winfo_screenheight()))
+    def toggle_fullscreen(event=None):
+        state = not win.attributes('-fullscreen')
+        win.attributes('-fullscreen', state)
+
+    def on_escape(event):
+        win.attributes('-fullscreen', False)
+    win.attributes('-fullscreen', True)
+
+    win.bind("<F11>", toggle_fullscreen)
+    win.bind("<Escape>", on_escape)
 
     app = App(win, "Lobby")
 
@@ -106,82 +109,97 @@ def register_Page():
     reg = Tk()
     width, height = reg.winfo_screenwidth(), reg.winfo_screenheight()
     reg.geometry('%dx%d+0+0' % (width,height))
+    def toggle_fullscreen(event=None):
+        state = not reg.attributes('-fullscreen')
+        reg.attributes('-fullscreen', state)
+
+    def on_escape(event):
+        reg.attributes('-fullscreen', False)
+    reg.attributes('-fullscreen', True)
+
+    reg.bind("<F11>", toggle_fullscreen)
+    reg.bind("<Escape>", on_escape)
     reg.title("Register")
 
-    registerLabel = Label(reg, text="Register", font=("Helvetica", 20))
+    registerLabel = Label(reg, text="Register", font=("Helvetica", 35))
     registerLabel.pack()
-    registerLabel.place(x=710, y=150)
+    registerLabel.place(relx= 0.5, rely=0.15, anchor=CENTER)
 
-    engName_label = Label(reg, text="English Name:", font=("Helvetica", 12))
-    engName_label.pack()
-    engName_label.place(x=500, y=250)
+    name_Label = Label(reg, text="Name:", font=("Helvetica", 12))
+    name_Label.pack()
+    name_Label.place(relx= 0.35, rely=0.25, anchor=CENTER)
 
-    engName_entry = Entry(reg)
-    engName_entry.pack()
-    engName_entry.place(x=650, y=250, width=250)
+    name_Entry = Entry(reg)
+    name_Entry.pack()
+    name_Entry.place(relx= 0.5, rely=0.25, width=250, anchor=CENTER)
 
-    chiName_label = Label(reg, text="Phone Number:", font=("Helvetica", 12))
-    chiName_label.pack()
-    chiName_label.place(x=500, y=350)
+    phNumber_Label = Label(reg, text="Phone Number:", font=("Helvetica", 12))
+    phNumber_Label.pack()
+    phNumber_Label.place(relx= 0.35, rely=0.35, anchor=CENTER)
 
-    chiName_entry = Entry(reg)
-    chiName_entry.pack()
-    chiName_entry.place(x=650, y=350, width=250)
+    phNumber_Entry = Entry(reg)
+    phNumber_Entry.pack()
+    phNumber_Entry.place(relx= 0.5, rely=0.35, width=250, anchor=CENTER)
 
-    chiName_label = Label(reg, text="(Example: XXX-XXXXXXXX)", font=("Helvetica", 10))
-    chiName_label.pack()
-    chiName_label.place(x=650, y=380)
+    phNumber_Label2 = Label(reg, text="(Example: XXX-XXXXXXXX)", font=("Helvetica", 10))
+    phNumber_Label2.pack()
+    phNumber_Label2.place(relx= 0.5, rely=0.40, anchor=CENTER)
 
-    dob_label = Label(reg, text="Date Of Birth:", font=("Helvetica", 12))
-    dob_label.pack()
-    dob_label.place(x=500, y=450)
+    dob_Label = Label(reg, text="Date Of Birth:", font=("Helvetica", 12))
+    dob_Label.pack()
+    dob_Label.place(relx= 0.35, rely=0.45, anchor=CENTER)
 
-    dob_entry = Entry(reg)
-    dob_entry.pack()
-    dob_entry.place(x=650, y=450, width=250)
+    dob_Entry = Entry(reg)
+    dob_Entry.pack()
+    dob_Entry.place(relx= 0.5, rely=0.45, width=250, anchor=CENTER)
 
-    dob_label = Label(reg, text="(Example: YYYY-MM-DD)", font=("Helvetica", 10))
-    dob_label.pack()
-    dob_label.place(x=650, y=480)    
+    dob_Label2 = Label(reg, text="(Example: YYYY-MM-DD)", font=("Helvetica", 10))
+    dob_Label2.pack()
+    dob_Label2.place(relx= 0.5, rely=0.50, anchor=CENTER)    
 
     def registerNewUser():
-        engName_input = engName_entry.get()
-        chiName_input = chiName_entry.get()
-        dob_input = dob_entry.get()
+        phNumberPattern = re.compile(r'^\d{3}-\d{7,8}$')
+        datePattern = re.compile(r'^\d{4}-\d{2}-\d{2}$')
+        name_Input = name_Entry.get()
+        phNumber_Input = phNumber_Entry.get() if phNumberPattern.match(phNumber_Entry.get()) else None
+        dob_Input = dob_Entry.get() if datePattern.match(dob_Entry.get()) else None
         
-        if all([engName_input, chiName_input, dob_input]):
+        if all([name_Input, phNumber_Input, dob_Input]):
             body = {
-                "englishName": engName_input,
-                "chineseName": chiName_input,
-                "birthDate": dob_input
+                "name": name_Input,
+                "phoneNumber": phNumber_Input,
+                "birthDate": dob_Input
             }
+            userExist = requests.get(f'{apiEndpoint}/getUser', params=body)
+            if userExist.json().get('rowCount') == 0:
+                registerUser = requests.post(f'{apiEndpoint}/addUser', json=body)
+                if registerUser.status_code == 200:
+                    registerUserResponse = registerUser.json()
+                    newQR = qrcode.make(registerUserResponse.get('UUID'))
+                    current_directory = os.path.dirname(os.path.abspath(__file__))
+                    file_path = os.path.join(current_directory, 'QR Codes', f'{name_Input}.png')
+                    newQR.save(file_path)
+                    show_temporary_label(reg, "Register Successfully")
 
-            registerUser = requests.post(f'{apiEndpoint}/register', json=body)
-            if registerUser.status_code == 200:
-                rrResult = registerUser.json()
-                newQR = qrcode.make(rrResult.get('UUID'))
-                current_directory = os.path.dirname(os.path.abspath(__file__))
-                file_path = os.path.join(current_directory, 'QR Codes', f'{engName_input}.png')
-                newQR.save(file_path)
-
-                sucess_label = Label(reg, text="Register Successfully", font=("Helvetica", 25))
-                sucess_label.pack()
-                sucess_label.place(x=620, y=550)
-
-                engName_entry.delete(0, END)
-                chiName_entry.delete(0, END)
-                dob_entry.delete(0, END)
+                    name_Entry.delete(0, END)
+                    phNumber_Entry.delete(0, END)
+                    dob_Entry.delete(0, END)
+            else:
+                show_temporary_label(reg, "User already exist.")
         else:
-            fail_label = Label(reg, text="Some information arent inserted, please double check.", font=("Helvetica", 25))
-            fail_label.pack()
-            fail_label.place(x=380, y=550)
+            show_temporary_label(reg, "Some information are not inserted in the correct format, please double check.")
+
+    def show_temporary_label(window, message):
+        label = Label(window, text=message, font=("Helvetica", 25))
+        label.place(relx= 0.5, rely=0.7, anchor=CENTER)
+        window.after(5000, label.destroy)
 
     submitButton = Button(reg, text="Submit", command=registerNewUser)
     submitButton.pack()
-    submitButton.place(x=700, y=600, width=150)
+    submitButton.place(relx= 0.5, rely=0.55, width=150, anchor=CENTER)
 
-    closeButton = Button(reg, text="close", command=reg.destroy)
-    closeButton.place(x=630, y=700, width=300)
+    closeButton = Button(reg, text="Close", command=reg.destroy)
+    closeButton.place(relx= 0.5, rely=0.60, width=300, anchor=CENTER)
 
     reg.mainloop()
 
@@ -190,20 +208,33 @@ def nameList_Page():
     width, height = nl.winfo_screenwidth(), nl.winfo_screenheight()
     nl.geometry('%dx%d+0+0' % (width,height))
     nl.title("Name List")
+    nl.geometry('%dx%d+0+0' % (width,height))
+    def toggle_fullscreen(event=None):
+        state = not nl.attributes('-fullscreen')
+        nl.attributes('-fullscreen', state)
+
+    def on_escape(event):
+        nl.attributes('-fullscreen', False)
+    nl.attributes('-fullscreen', True)
+
+    nl.bind("<F11>", toggle_fullscreen)
+    nl.bind("<Escape>", on_escape)
 
     nameList_leftFrame = LabelFrame(nl, text="Name List", font=("Helvetica", 15))
     nameList_leftFrame.grid(row=0, column=0)
     nameList_leftframelabel = Label(nameList_leftFrame, padx = 500, pady = 300)
 
-
-    def create_table(data: list, searchCriteria: str = ''):
+    def create_table(searchCriteria: str = ''):
+        def show_temporary_label(message):
+            label = Label(nl, text=message, font=("Helvetica", 25))
+            label.place(x=620, y=550)
+            nl.after(2000, label.destroy)
         def removeUser():
             def deleteUser():
-                uuid = table.item(table.focus())['values'][3]
+                uuid = table.item(table.focus())['values'][4]
                 requests.delete(f'{apiEndpoint}/removeUser', json={'UUID': uuid})
                 cfm.destroy()
-                nl.destroy()
-                nameList_Page()
+                update_table()
             if table.selection():
                 cfm = Tk()
                 width, height = cfm.winfo_screenwidth()/8, cfm.winfo_screenwidth()/16
@@ -211,7 +242,7 @@ def nameList_Page():
                 cfm.geometry('%dx%d+%d+%d' % (width, height, center_x, center_y))
                 cfm.title("Confirmation")
                 
-                name = table.item(table.focus())['values'][2]
+                name = table.item(table.focus())['values'][1]
                 
                 confirmationMessage_label = Label(cfm, text="Are you sure to remove user?", font=("Arial", 10))
                 confirmationMessage_label.place(x=0, y=0)
@@ -231,90 +262,108 @@ def nameList_Page():
 
         def unAttendUser():
             def clearUser():
-                uuid = table.item(table.focus())['values'][3]
-                requests.delete(f'{apiEndpoint}/unmarkAttendance', json={'UUID': uuid})
+                uuid = table.item(table.focus())['values'][4]
+                requests.delete(f'{apiEndpoint}/removeAttendance', json={'UUID': uuid})
                 cfm.destroy()
+                update_table()
             if table.selection():
-                name = table.item(table.focus())['values'][2]
-                cfm = Tk()
-                width, height = cfm.winfo_screenwidth()/8, cfm.winfo_screenwidth()/16
-                center_x, center_y = int((cfm.winfo_screenwidth() - width) / 2), int((cfm.winfo_screenheight() - height) / 2)
-                cfm.geometry('%dx%d+%d+%d' % (width, height, center_x, center_y))
-                cfm.title("Confirmation")
+                name = table.item(table.focus())['values'][1]
+                attended = table.item(table.focus())['values'][0]
+                if attended == "No":
+                    show_temporary_label("User is yet to be marked, you can't unmark an absent user")
+                else:
+                    cfm = Tk()
+                    width, height = cfm.winfo_screenwidth()/8, cfm.winfo_screenwidth()/16
+                    center_x, center_y = int((cfm.winfo_screenwidth() - width) / 2), int((cfm.winfo_screenheight() - height) / 2)
+                    cfm.geometry('%dx%d+%d+%d' % (width, height, center_x, center_y))
+                    cfm.title("Confirmation")
 
-                confirmationMessage_label = Label(cfm, text="Remove user's attendance", font=("Arial", 10))
-                confirmationMessage_label.place(x=0, y=0)
+                    confirmationMessage_label = Label(cfm, text="Remove user's attendance", font=("Arial", 10))
+                    confirmationMessage_label.place(x=0, y=0)
 
-                confirmationDetails_label = Label(cfm, text=f"Name: {name}", font=("Arial", 10))
-                confirmationDetails_label.place(x=0, y=30)
+                    confirmationDetails_label = Label(cfm, text=f"Name: {name}", font=("Arial", 10))
+                    confirmationDetails_label.place(x=0, y=30)
 
-                confirmButton = Button(cfm, text="Yes", command=clearUser)
-                confirmButton.place(x=0, y=60, width=width/2)
+                    confirmButton = Button(cfm, text="Yes", command=clearUser)
+                    confirmButton.place(x=0, y=60, width=width/2)
 
-                closeButton = Button(cfm, text="Close", command=cfm.destroy)
-                closeButton.place(x=width/2, y=60, width=width/2)
-                
-                cfm.mainloop()
+                    closeButton = Button(cfm, text="Close", command=cfm.destroy)
+                    closeButton.place(x=width/2, y=60, width=width/2)
+                    
+                    cfm.mainloop()
             else:
                 pass
 
         def AttendUser():
             def addUser():
-                uuid = table.item(table.focus())['values'][3]
-                engName = table.item(table.focus())['values'][2]
-                chiName = table.item(table.focus())['values'][1]
-                dob = datetime.strptime(table.item(table.focus())['values'][0], "%d/%m/%Y").strftime("%Y-%m-%d")
-                requests.post(f'{apiEndpoint}/attendance', json={'UUID': uuid, 'englishName': engName, 'chineseName': chiName, 'birthDate': dob})
+                uuid = table.item(table.focus())['values'][4]
+                Name = table.item(table.focus())['values'][1]
+                requests.post(f'{apiEndpoint}/addAttendance', json={'UUID': uuid, 'name': Name})
                 cfm.destroy()
+                update_table()
             if table.selection():
-                name = table.item(table.focus())['values'][2]
-                cfm = Tk()
-                width, height = cfm.winfo_screenwidth()/8, cfm.winfo_screenwidth()/16
-                center_x, center_y = int((cfm.winfo_screenwidth() - width) / 2), int((cfm.winfo_screenheight() - height) / 2)
-                cfm.geometry('%dx%d+%d+%d' % (width, height, center_x, center_y))
-                cfm.title("Confirmation")
+                name = table.item(table.focus())['values'][1]
+                attended = table.item(table.focus())['values'][0]
+                if attended == "Yes":
+                    show_temporary_label("User is already marked, you can't mark a marked user")
+                else:
+                    cfm = Tk()
+                    width, height = cfm.winfo_screenwidth()/8, cfm.winfo_screenwidth()/16
+                    center_x, center_y = int((cfm.winfo_screenwidth() - width) / 2), int((cfm.winfo_screenheight() - height) / 2)
+                    cfm.geometry('%dx%d+%d+%d' % (width, height, center_x, center_y))
+                    cfm.title("Confirmation")
 
-                confirmationMessage_label = Label(cfm, text="Mark user's attendance", font=("Arial", 10))
-                confirmationMessage_label.place(x=0, y=0)
+                    confirmationMessage_label = Label(cfm, text="Mark user's attendance", font=("Arial", 10))
+                    confirmationMessage_label.place(x=0, y=0)
 
-                confirmationDetails_label = Label(cfm, text=f"Name: {name}", font=("Arial", 10))
-                confirmationDetails_label.place(x=0, y=30)
+                    confirmationDetails_label = Label(cfm, text=f"Name: {name}", font=("Arial", 10))
+                    confirmationDetails_label.place(x=0, y=30)
 
-                confirmButton = Button(cfm, text="Yes", command=addUser)
-                confirmButton.place(x=0, y=60, width=width/2)
+                    confirmButton = Button(cfm, text="Yes", command=addUser)
+                    confirmButton.place(x=0, y=60, width=width/2)
 
-                closeButton = Button(cfm, text="Close", command=cfm.destroy)
-                closeButton.place(x=width/2, y=60, width=width/2)
-                
-                cfm.mainloop()
+                    closeButton = Button(cfm, text="Close", command=cfm.destroy)
+                    closeButton.place(x=width/2, y=60, width=width/2)
+                    
+                    cfm.mainloop()
             else:
                 pass
         
-        def selectItem(a):
-            pass
-            
-
-        def filterByName(data: list, target):
-            if target == '':
-                filtered_data = data
-            else:
-                filtered_data = [row for row in data if row["EnglishName"].lower().startswith(str(target.lower()))]
-
-            return filtered_data
-
         def updateSearchCriteria(*args):
-            nonlocal searchCriteria
-            searchCriteria = search_entry.get().strip()
-            update_table()
-
+                nonlocal searchCriteria
+                searchCriteria = search_entry.get().strip()
+                update_table()
         def update_table():
+            def reformatData(data:list):
+                returnData = []
+                for row in data:
+                    tempDict = {}
+                    tempDict['Attended Today'] = row['Attended']
+                    tempDict['Name'] = row['Name']
+                    tempDict['PhoneNumber'] = row['PhoneNumber']
+                    tempDict['BirthDate'] = row['BirthDate']
+                    tempDict['UUID'] = row['UUID']
+                    returnData.append(tempDict)
+                return returnData
+            def filterByName(data: list, target):
+                if target == '':
+                    filtered_data = data
+                else:
+                    filtered_data = [row for row in data if row["Name"].lower().startswith(str(target.lower()))]
+
+                return filtered_data
+            data = requests.get(f"{apiEndpoint}/getTableData").json()
+            formattedData = reformatData(data['users'])
             for row in table.get_children():
                 table.delete(row)
             
-            for row in filterByName(data, searchCriteria):
+            for col in formattedData[0].keys():
+                table.heading(col, text=col)
+                table.column(col, anchor="center", width=300)
+            for row in filterByName(formattedData, searchCriteria):
                 table.insert("", "end", values=list(row.values()))
-        
-        table = ttk.Treeview(nameList_leftFrame, columns=list(data[0].keys()), show="headings", height=25)
+
+        table = ttk.Treeview(nameList_leftFrame, columns=('Attended Today', 'Name', 'PhoneNumber', 'BirthDate', 'UUID'), show="headings", height=25)
 
         search_label = Label(nameList_leftFrame, text="Search:", font=("Helvetica", 12))
         search_label.place(x=500, y=550)
@@ -332,27 +381,12 @@ def nameList_Page():
 
         AttendButton = Button(nl, text="Attend", command=AttendUser)
         AttendButton.place(x=1300, y=550, width=150)
-
-        for col in data[0].keys():
-            table.heading(col, text=col)
-            table.column(col, anchor="center", width=300)
-            table.bind('<ButtonRelease-1>', selectItem)
             
         update_table()
 
         table.pack()
-    
-    def reformatData(data:list):
-        returnData = []
-        for row in data:
-            row['BirthDate'] = datetime.strptime(row['BirthDate'], "%a, %d %b %Y %H:%M:%S %Z").strftime("%d/%m/%Y")
-            returnData.append(row)
-        return returnData
 
-    data = requests.get(f"{apiEndpoint}/showUser").json()
-    formattedData = reformatData(data['response'])
-
-    create_table(formattedData)
+    create_table()
 
     nameList_leftframelabel.pack()
 
