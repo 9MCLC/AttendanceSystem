@@ -10,14 +10,14 @@ import json
 from PIL import Image, ImageTk
 import os
 
-# port = None
-# env = input('input your env: "dev or prod"')
-# if env == 'dev':
-#     port = 5001
-# elif env == 'prod':
-#     port = 5000
+port = None
+env = input('input your env: "dev or prod"')
+if env == 'dev':
+    port = 5001
+elif env == 'prod':
+    port = 5000
 
-# apiEndpoint = f"http://60.48.85.4:{port}"
+apiEndpoint = f"http://60.48.85.4:{port}"
 apiEndpoint = f"http://192.168.0.119:5001"
 
 class App:
