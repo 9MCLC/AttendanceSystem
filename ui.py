@@ -17,8 +17,8 @@ if env == 'dev':
 elif env == 'prod':
     port = 5000
 
-apiEndpoint = f"http://60.48.85.4:{port}"
-# apiEndpoint = f"http://192.168.0.119:{port}"
+# apiEndpoint = f"http://60.48.85.4:{port}"
+apiEndpoint = f"http://192.168.0.119:{port}"
 
 class App:
     def __init__(self, window, window_title):
@@ -76,9 +76,9 @@ class App:
                             attendanceTiming = attendanceExistsResult.get("result")[0].get('TimeOfAttendance')
                             self.show_temporary_label(f'{name} - Attendance already marked at {datetime.strptime(attendanceTiming, "%a, %d %b %Y %H:%M:%S %Z").strftime("%H:%M:%S")}')
                     else:
-                        self.show_temporary_label('QR Code is not a valid QR Code, if you did not register before, please register a new user.')   
+                        self.show_temporary_label('QR Code is not a valid')   
 
-        self.window.after(1, self.update)
+        self.window.after(30, self.update)
 
     def show_temporary_label(self, message):
         label = Label(self.window, text=message, font=("Helvetica", 25))
@@ -256,8 +256,7 @@ def nameList_Page():
                 closeButton.place(x=width/2, y=height/3*2, width=width/2)
                 cfm.mainloop()
             else:
-                selectionWarning_label = Label(nl, text="Please select a user", font=("Arial", 10))
-                selectionWarning_label.place(x=1000, y=500)
+                show_temporary_label("Please select a user")
 
         def unAttendUser():
             def clearUser():
@@ -291,7 +290,7 @@ def nameList_Page():
                     
                     cfm.mainloop()
             else:
-                pass
+                show_temporary_label("Please select a user")
 
         def AttendUser():
             def addUser():
@@ -326,7 +325,7 @@ def nameList_Page():
                     
                     cfm.mainloop()
             else:
-                pass
+                show_temporary_label("Please select a user")
         
         def updateSearchCriteria(*args):
                 nonlocal searchCriteria
@@ -373,14 +372,14 @@ def nameList_Page():
         search_entry.bind("<KeyRelease>", updateSearchCriteria)
 
         removeButton = Button(nl, text="Remove User", command=removeUser)
-        removeButton.place(relx=0.8, rely=0.2, width=150)
+        removeButton.place(relx=0.9, rely=0.2, width=150)
 
         unAttendButton = Button(nl, text="Unattend", command=unAttendUser)
-        unAttendButton.place(relx=0.8, rely=0.3, width=150)
+        unAttendButton.place(relx=0.9, rely=0.3, width=150)
 
         AttendButton = Button(nl, text="Attend", command=AttendUser)
-        AttendButton.place(relx=0.8, rely=0.4, width=150)
-            
+        AttendButton.place(relx=0.9, rely=0.4, width=150)
+
         update_table()
 
         table.pack()
