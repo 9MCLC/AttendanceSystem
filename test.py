@@ -137,9 +137,9 @@ class Lobby:
         self.function_frame.grid(row=2, column=1, sticky="nsew")
 
         self.function_frame.grid_columnconfigure(0, weight=15)
-        self.function_frame.grid_columnconfigure(1, weight=30)
+        self.function_frame.grid_columnconfigure(1, weight=20)
         self.function_frame.grid_columnconfigure(2, weight=10)
-        self.function_frame.grid_columnconfigure(3, weight=30)
+        self.function_frame.grid_columnconfigure(3, weight=40)
         self.function_frame.grid_columnconfigure(4, weight=15)
         self.function_frame.grid_rowconfigure(0, weight=10)
         self.function_frame.grid_rowconfigure(1, weight=10)
@@ -156,7 +156,7 @@ class Lobby:
         self.QRFrame.grid(row=3,column=1,sticky='nsew')
         self.infoFrame.grid(row=1, column=3, rowspan=3, sticky='nsew')
 
-        self.QRTextLabel = tk.Label(self.textFrame, text="SCAN QR HERE", font=("Helvetica", self.get_window_size(), 'bold'), anchor="center", bg='white')
+        self.QRTextLabel = tk.Label(self.textFrame, text="SHOW QR HERE", font=("Helvetica", self.get_window_size(), 'bold'), anchor="center", bg='white')
         self.QRTextLabel.pack(expand=True, fill="both")
 
         self.QRFrame.grid_propagate(False)
@@ -170,6 +170,12 @@ class Lobby:
         self.infoFrame.grid_rowconfigure(0, weight=1)
         self.infoFrame.grid_columnconfigure(0, weight=1)
 
+        successButton = Button(self.function_frame, text="SUCCESS", command=self.show_success_label, font=("Helvetica", self.get_window_size()//18, 'bold'), width=15, cursor="hand2", relief='groove')
+        successButton.place(relx=0, rely=0.3, anchor="center")
+
+        nameListButton = Button(self.function_frame, text="FAIL", command=self.show_fail_label, font=("Helvetica", self.get_window_size()//18, 'bold'), width=15, cursor="hand2", relief='groove')
+        nameListButton.place(relx=0, rely=0.4, anchor="center")
+
 
         self.video_source = 0
         self.vid = cv2.VideoCapture(self.video_source)
@@ -177,7 +183,8 @@ class Lobby:
         self.UUIDCooldown = []
         self.update()
 
-    def show_success_label(self, name):
+    def show_success_label(self, name="Yew Hong Yin"):
+        self.infoFrame.grid_propagate(False)
         self.successInfoFrame = tk.Frame(self.infoFrame, bg="white")
         self.successInfoFrame.grid_rowconfigure(0, weight=4)
         self.successInfoFrame.grid_rowconfigure(1, weight=2)
@@ -204,10 +211,11 @@ class Lobby:
 
         self.successInfoFrame.after(5000, self.successInfoFrame.destroy)
 
-    def show_fail_label(self, message, name=None, time=None):
+    def show_fail_label(self, message="Failed", name="None", time=None):
         self.failInfoFrame = tk.Frame(self.infoFrame, bg="white")
+        self.infoFrame.grid_propagate(False)
 
-        if message == "Attendance Marking Failed\nError Occured\nplease contact Admin.":
+        if message == "Failed":
             self.failInfoFrame.grid_rowconfigure(0, weight=4)
             self.failInfoFrame.grid_rowconfigure(1, weight=6)
             self.failInfoFrame.grid_columnconfigure(0, weight=1)
@@ -219,10 +227,13 @@ class Lobby:
             image_label.image = image
 
             image_label.grid(row=0, column=0)
-            label1 = Label(self.failInfoFrame, text=message, font=("Helvetica", int(self.get_window_size()//40)), bg='white')
+            label1 = Label(self.failInfoFrame, text="Attendance Marking Failed\nError Occured\nPlease contact Admin.", font=("Helvetica", int(self.get_window_size()//40)), bg='white')
             label1.grid(row=1, column=0)
+
+            label2 = Label(self.failInfoFrame, text=name, font=("Helvetica", int(self.get_window_size()//40)), bg='white')
+            label2.grid(row=2, column=0)
             self.failInfoFrame.after(5000, self.failInfoFrame.destroy)
-        elif message == "Attendance already marked":
+        elif message == "Marked":
             self.failInfoFrame.grid_rowconfigure(0, weight=4)
             self.failInfoFrame.grid_rowconfigure(1, weight=2)
             self.failInfoFrame.grid_rowconfigure(2, weight=2)
@@ -236,7 +247,7 @@ class Lobby:
             image_label.image = image
 
             image_label.grid(row=0, column=0)
-            label1 = Label(self.failInfoFrame, text="Attendance Marked\nAlready At", font=("Helvetica", int(self.get_window_size()//40-3)), bg='white')
+            label1 = Label(self.failInfoFrame, text="Attendance Marked\nAlready At", font=("Helvetica", int(self.get_window_size()//40)), bg='white')
             label1.grid(row=1, column=0)
 
             label2 = Label(self.failInfoFrame, text=time, font=("Helvetica", int(self.get_window_size()//40)), bg='white')
@@ -245,7 +256,7 @@ class Lobby:
             label3 = Label(self.failInfoFrame, text=name, font=("Helvetica", int(self.get_window_size()//40)), bg='white')
             label3.grid(row=3, column=0)
             self.failInfoFrame.after(5000, self.failInfoFrame.destroy)
-        elif message == "QR Code is not valid":
+        elif message == "Invalid":
             self.failInfoFrame.grid_rowconfigure(0, weight=4)
             self.failInfoFrame.grid_rowconfigure(1, weight=6)
             self.failInfoFrame.grid_columnconfigure(0, weight=1)
@@ -257,7 +268,7 @@ class Lobby:
             image_label.image = image
 
             image_label.grid(row=0, column=0)
-            label1 = Label(self.failInfoFrame, text=message, font=("Helvetica", int(self.get_window_size()//40)), bg='white')
+            label1 = Label(self.failInfoFrame, text="QR Code is not valid", font=("Helvetica", int(self.get_window_size()//40)), bg='white')
             label1.grid(row=1, column=0)
             self.failInfoFrame.after(5000, self.failInfoFrame.destroy)
 
@@ -286,12 +297,12 @@ class Lobby:
                             if markAttendance.status_code == 200:
                                 self.show_success_label(name=name)
                             else:
-                                self.show_fail_label(message='Attendance Marking Failed\nError Occured\nplease contact Admin.', name=name)
+                                self.show_fail_label(message='Failed', name=name)
                         else:
                             attendanceTiming = attendanceExistsResult.get("result")[0].get('TimeOfAttendance')
-                            self.show_fail_label(message='Attendance already marked', name=name, time=datetime.strptime(attendanceTiming, "%a, %d %b %Y %H:%M:%S %Z").strftime("%I:%M:%S %p"))
+                            self.show_fail_label(message='Marked', name=name, time=datetime.strptime(attendanceTiming, "%a, %d %b %Y %H:%M:%S %Z").strftime("%I:%M:%S %p"))
                     else:
-                        self.show_fail_label(message='QR Code is not valid')   
+                        self.show_fail_label(message='Invalid')   
 
         self.function_frame.after(20, self.update)
 
