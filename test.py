@@ -56,10 +56,12 @@ class Lobby:
     def LaunchRegistration(self):
         self.window.destroy()
         Registration()
+        self.vid.release()
 
     def LaunchNameList(self):
         self.window.destroy()
         NameList()
+        self.vid.release()
 
     def get_window_size(self):
         window_size = min(self.window.winfo_width(), self.window.winfo_height())
@@ -211,7 +213,7 @@ class Lobby:
 
         self.successInfoFrame.after(5000, self.successInfoFrame.destroy)
 
-    def show_fail_label(self, message="Failed", name="None", time=None):
+    def show_fail_label(self, message="Failed", name="YHY", time=None):
         self.failInfoFrame = tk.Frame(self.infoFrame, bg="white")
         self.infoFrame.grid_propagate(False)
 
@@ -314,13 +316,14 @@ class Lobby:
 class Registration:
     def __init__(self):
         self.window = Tk()
-        self.window.title("Lobby")
+        self.window.title("REGISTRATION")
         self.window.geometry('%dx%d+0+0' % (self.window.winfo_screenwidth(), self.window.winfo_screenheight()))
         self.window.grid_columnconfigure(0, weight=1)
         self.window.grid_columnconfigure(1, weight=4)
         self.window.grid_rowconfigure(0, weight=1)
         self.window.grid_rowconfigure(1, weight=0)
         self.window.grid_rowconfigure(2, weight=9)
+        self.window.grid_propagate(False)
         self.window.minsize(800, 400)
         def toggle_fullscreen(event = None):
             state = not self.window.attributes('-fullscreen')
@@ -329,7 +332,6 @@ class Registration:
         def on_escape(event):
             self.window.attributes('-fullscreen', False)
         self.window.attributes('-fullscreen', True)
-
         self.window.bind("<F11>", toggle_fullscreen)
         self.window.bind("<Escape>", on_escape)
         self.create_function_frame()
@@ -342,7 +344,7 @@ class Registration:
     def LaunchLobby(self):
         self.window.destroy()
         Lobby()
-    
+
     def LaunchRegistration(self):
         self.window.destroy()
         Registration()
@@ -352,19 +354,19 @@ class Registration:
         NameList()
 
     def get_window_size(self):
-        window_size = min(self.window.winfo_width(), self.window.winfo_height())  # Adjust the divisor to change font size relative to window size
+        window_size = min(self.window.winfo_width(), self.window.winfo_height())
         return window_size
 
     def create_title_page(self):
         self.title_frame = tk.Frame(self.window, bg="white", bd=2, relief="solid", height=self.window.winfo_height() * 0.2)
 
         def update_title(event=None):
-            font_size = self.get_window_size()//15
-            title_bold_font = ("Helvetica", font_size, "bold")
-            name_bold_font = ("Helvetica", font_size//2, "bold", "underline")
+            window_size = self.get_window_size()
+            title_bold_font = ("Helvetica", window_size//15, "bold")
+            name_bold_font = ("Helvetica", window_size//35, "bold", "underline")
             self.title_label.config(font=title_bold_font)
-            self.name_label.config(font=name_bold_font, pady=font_size-40)
-            self.border_frame.config(height=font_size-20)
+            self.name_label.config(font=name_bold_font, pady=window_size//18)
+            self.border_frame.config(height=window_size//17)
 
         self.title_label = tk.Label(self.title_frame, text="REGISTRATION", font=("Helvetica", self.get_window_size()//15, 'bold'), anchor=W, bg='white')
         self.title_label.pack(side="left", expand=True, fill="both")
@@ -396,13 +398,13 @@ class Registration:
 
         self.toolbar_frame.bind("<Configure>", update_toolbar)
 
-        lobbyButton = Button(self.toolbar_frame, text="LOBBY", command=self.LaunchLobby, font=("Helvetica", self.get_window_size()//15, 'bold'), width=150, cursor="hand2", relief='groove')
+        lobbyButton = Button(self.toolbar_frame, text="LOBBY", command=self.LaunchLobby, font=("Helvetica", self.get_window_size()//18, 'bold'), width=150, cursor="hand2", relief='groove')
         lobbyButton.place(relx=0.5, rely=0.3, anchor="center")
 
-        nameListButton = Button(self.toolbar_frame, text="NAME LIST", command=self.LaunchNameList, font=("Helvetica", self.get_window_size()//15, 'bold'), width=150, cursor="hand2", relief='groove')
+        nameListButton = Button(self.toolbar_frame, text="NAME LIST", command=self.LaunchNameList, font=("Helvetica", self.get_window_size()//18, 'bold'), width=150, cursor="hand2", relief='groove')
         nameListButton.place(relx=0.5, rely=0.4, anchor="center")
 
-        registrationButton = Button(self.toolbar_frame, text="REGISTRATION", command=self.LaunchRegistration, font=("Helvetica", self.get_window_size()//15, 'bold'), width=150, cursor="hand2", relief='groove')
+        registrationButton = Button(self.toolbar_frame, text="REGISTRATION", command=self.LaunchRegistration, font=("Helvetica", self.get_window_size()//18, 'bold'), width=150, cursor="hand2", relief='groove')
         registrationButton.place(relx=0.5, rely=0.5, anchor="center")
 
         image = Image.open("./Logo.png")
@@ -417,15 +419,174 @@ class Registration:
         self.toolbar_frame.grid(row=2, column=0, sticky="nsew")
 
     def create_function_frame(self):
-        function_frame = tk.Frame(self.window, bg="white", bd=2, relief="solid")
-        function_label = tk.Label(function_frame, text="Function Frame", font=("Helvetica", 12), bg='white')
-        function_label.pack(expand=True, fill="both")
-        function_frame.grid(row=2, column=1, sticky="nsew")
+        def update_function(event=None):
+            window_size = self.get_window_size()
+            text_bold_font = ("Helvetica", window_size//40, "bold")
+            entry_font = ("Helvetica", window_size//50)
+            self.registerLabel.config(font=text_bold_font)
+            self.name_Label.config(font=text_bold_font)
+            self.phNumber_Label.config(font=text_bold_font)
+            self.dob_Label.config(font=text_bold_font)
+            self.submitButton.config(font=("Helvetica", window_size//40, "bold"), width=window_size//60)
+            self.name_Entry.config(font=entry_font)
+            self.phNumber_Entry.config(font=entry_font)
+            self.dob_Entry.config(font=entry_font)
+
+        def ph_on_entry_click(event):
+            if self.phNumber_Entry.get() == "(EG: 012-34567890)":
+                self.phNumber_Entry.delete(0, "end")
+                self.phNumber_Entry.config(fg='black')
+
+        def ph_on_focus_out(event):
+            if self.phNumber_Entry.get() == "":
+                self.phNumber_Entry.insert(0, "(EG: 012-34567890)")
+                self.phNumber_Entry.config(fg='gray')
         
+        def dob_on_entry_click(event):
+            if self.dob_Entry.get() == "(EG: 2003-12-01)":
+                self.dob_Entry.delete(0, "end")
+                self.dob_Entry.config(fg='black')
+
+        def dob_on_focus_out(event):
+            if self.dob_Entry.get() == "":
+                self.dob_Entry.insert(0, "(EG: 2003-12-01)")
+                self.dob_Entry.config(fg='gray')
+        self.function_frame = tk.Frame(self.window, bg="white", bd=2, relief="solid")
+        self.function_frame.grid(row=2, column=1, sticky="nsew")
+        self.function_frame.grid_rowconfigure(0, weight=15)
+        self.function_frame.grid_rowconfigure(1, weight=7)
+        self.function_frame.grid_rowconfigure(2, weight=3)
+        self.function_frame.grid_rowconfigure(3, weight=7)
+        self.function_frame.grid_rowconfigure(4, weight=3)
+        self.function_frame.grid_rowconfigure(5, weight=7)
+        self.function_frame.grid_rowconfigure(6, weight=3)
+        self.function_frame.grid_rowconfigure(7, weight=3)
+        self.function_frame.grid_rowconfigure(8, weight=7)
+        self.function_frame.grid_rowconfigure(9, weight=5)
+        self.function_frame.grid_rowconfigure(10, weight=5)
+        self.function_frame.grid_rowconfigure(11, weight=20)
+        self.function_frame.grid_rowconfigure(12, weight=15)
+        self.function_frame.grid_columnconfigure(0, weight=2)
+        self.function_frame.grid_columnconfigure(1, weight=5)
+        self.function_frame.grid_columnconfigure(2, weight=3)
+        self.function_frame.grid_propagate(False)
+        self.window.bind("<Configure>", update_function)
+
+        successButton = Button(self.function_frame, text="SUCCESS", command=self.show_success_label, font=("Helvetica", self.get_window_size()//18, 'bold'), width=15, cursor="hand2", relief='groove')
+        successButton.place(relx=0, rely=0.3, anchor="center")
+
+        nameListButton = Button(self.function_frame, text="FAIL", command=self.show_fail_label, font=("Helvetica", self.get_window_size()//18, 'bold'), width=15, cursor="hand2", relief='groove')
+        nameListButton.place(relx=0, rely=0.4, anchor="center")
+
+        self.registerLabel = Label(self.function_frame, text="Register", font=("Helvetica", self.get_window_size()//15), bg='white')
+        self.registerLabel.grid(row=0, column=0, columnspan=3)
+
+        self.name_Label = Label(self.function_frame, text="Name", font=("Helvetica", self.get_window_size()//20), bg='white')
+        self.name_Label.grid(row=1, column=0, sticky='e')
+
+        self.name_Entry = Entry(self.function_frame, relief='solid', font=("Helvetica", self.get_window_size()//20), justify='left')
+        self.name_Entry.grid(row=1, column=1, sticky='nsew')
+
+        self.phNumber_Label = Label(self.function_frame, text="Phone Number", font=("Helvetica", self.get_window_size()//20), bg='white')
+        self.phNumber_Label.grid(row=3, column=0, sticky='e')
+
+        self.phNumber_Entry = Entry(self.function_frame, relief='solid', fg='gray', font=("Helvetica", self.get_window_size()//20), justify='left')
+        self.phNumber_Entry.insert(0, "(EG: 012-34567890)")
+        self.phNumber_Entry.bind('<FocusIn>', ph_on_entry_click)
+        self.phNumber_Entry.bind('<FocusOut>', ph_on_focus_out)
+        self.phNumber_Entry.grid(row=3, column=1, sticky='nsew')
+
+        self.dob_Label = Label(self.function_frame, text="Date Of Birth", font=("Helvetica", self.get_window_size()//20), bg='white')
+        self.dob_Label.grid(row=5, column=0, sticky='e')
+
+        self.dob_Entry = Entry(self.function_frame, relief='solid', fg='gray', font=("Helvetica", self.get_window_size()//20), justify='left')
+        self.dob_Entry.insert(0, "(EG: 2003-12-01)")
+        self.dob_Entry.bind('<FocusIn>', dob_on_entry_click)
+        self.dob_Entry.bind('<FocusOut>', dob_on_focus_out)
+        self.dob_Entry.grid(row=5, column=1, sticky='nsew')
+
+        self.submitButton = Button(self.function_frame, text="SUBMIT", command=self.Register, font=("Helvetica", self.get_window_size()//18, 'bold'), width=20, cursor="hand2", relief='groove')
+        self.submitButton.grid(row=7, column=0, columnspan=3)
+
+    def Register(self):
+        phNumberPattern = re.compile(r'^\d{3}-\d{7,8}$')
+        datePattern = re.compile(r'^\d{4}-\d{2}-\d{2}$')
+        name_Input = self.name_Entry.get()
+        phNumber_Input = self.phNumber_Entry.get() if phNumberPattern.match(self.phNumber_Entry.get()) else None
+        dob_Input = self.dob_Entry.get() if datePattern.match(self.dob_Entry.get()) else None
+        
+        if all([name_Input, phNumber_Input, dob_Input]):
+            body = {
+                "name": name_Input,
+                "phoneNumber": phNumber_Input,
+                "birthDate": dob_Input
+            }
+            userExist = requests.get(f'{apiEndpoint}/getUser', params=body)
+            if userExist.json().get('rowCount') == 0:
+                registerUser = requests.post(f'{apiEndpoint}/addUser', json=body)
+                if registerUser.status_code == 200:
+                    registerUserResponse = registerUser.json()
+                    newQR = qrcode.make(registerUserResponse.get('UUID'))
+                    current_directory = os.path.dirname(os.path.abspath(__file__))
+                    file_path = os.path.join(current_directory, 'QR Codes', f'{name_Input}.png')
+                    newQR.save(file_path)
+                    self.show_success_label()
+
+                    self.name_Entry.delete(0, END)
+                    self.phNumber_Entry.delete(0, END)
+                    self.dob_Entry.delete(0, END)
+            else:
+                self.show_fail_label(401)
+        else:
+            self.show_fail_label(422)
+    
+    def show_success_label(self):
+        self.successInfoFrame = tk.Frame(self.function_frame, bg="white")
+        self.function_frame.grid_propagate(False)
+        self.successInfoFrame.grid_rowconfigure(0, weight=4)
+        self.successInfoFrame.grid_rowconfigure(1, weight=1)
+        self.successInfoFrame.grid_rowconfigure(2, weight=2)
+        self.successInfoFrame.grid_rowconfigure(3, weight=1)
+        self.successInfoFrame.grid_columnconfigure(0, weight=1)
+        self.successInfoFrame.grid(row=8, column=0, columnspan=3, rowspan=5, sticky='nsew')
+        label1 = Label(self.successInfoFrame, text="REGISTER SUCCESSFULLY", font=("Helvetica", int(self.get_window_size()//30), 'bold'), bg='white')
+        label1.grid(row=0, column=0)
+
+        label2 = Label(self.successInfoFrame, text="QR HAS BEEN SENT TO YOUR WHATSAPP", font=("Helvetica", int(self.get_window_size()//50), 'bold'), bg='white')
+        label2.grid(row=2, column=0)
+        
+        self.successInfoFrame.after(5000, self.successInfoFrame.destroy)
+
+    def show_fail_label(self, error=401):
+        self.failInfoFrame = tk.Frame(self.function_frame, bg="white")
+        self.function_frame.grid_propagate(False)
+        self.failInfoFrame.grid_rowconfigure(0, weight=4)
+        self.failInfoFrame.grid_rowconfigure(1, weight=1)
+        self.failInfoFrame.grid_rowconfigure(2, weight=2)
+        self.failInfoFrame.grid_rowconfigure(3, weight=1)
+        self.failInfoFrame.grid_columnconfigure(0, weight=1)
+        self.failInfoFrame.grid(row=8, column=0, columnspan=3, rowspan=5, sticky='nsew')
+        
+        if error == 401:
+            label1 = Label(self.failInfoFrame, text="REGISTER FAILED", font=("Helvetica", int(self.get_window_size()//30), 'bold'), bg='white')
+            label1.grid(row=0, column=0)
+
+            label2 = Label(self.failInfoFrame, text="USER ALREADY EXISTED", font=("Helvetica", int(self.get_window_size()//50), 'bold'), bg='white')
+            label2.grid(row=2, column=0)
+        elif error == 422:
+            label1 = Label(self.failInfoFrame, text="REGISTER FAILED", font=("Helvetica", int(self.get_window_size()//40), 'bold'), bg='white')
+            label1.grid(row=0, column=0)
+
+            label2 = Label(self.failInfoFrame, text="INFORMATION INSERTED IN WRONG FORMAT", font=("Helvetica", int(self.get_window_size()//50), 'bold'), bg='white')
+            label2.grid(row=2, column=0)
+        
+        self.failInfoFrame.after(5000, self.failInfoFrame.destroy)
+
+
 class NameList:
     def __init__(self):
         self.window = Tk()
-        self.window.title("Lobby")
+        self.window.title("NAMELIST")
         self.window.geometry('%dx%d+0+0' % (self.window.winfo_screenwidth(), self.window.winfo_screenheight()))
         self.window.grid_columnconfigure(0, weight=1)
         self.window.grid_columnconfigure(1, weight=4)
@@ -440,7 +601,6 @@ class NameList:
         def on_escape(event):
             self.window.attributes('-fullscreen', False)
         self.window.attributes('-fullscreen', True)
-
         self.window.bind("<F11>", toggle_fullscreen)
         self.window.bind("<Escape>", on_escape)
         self.create_function_frame()
@@ -453,7 +613,7 @@ class NameList:
     def LaunchLobby(self):
         self.window.destroy()
         Lobby()
-    
+
     def LaunchRegistration(self):
         self.window.destroy()
         Registration()
@@ -463,19 +623,19 @@ class NameList:
         NameList()
 
     def get_window_size(self):
-        window_size = min(self.window.winfo_width(), self.window.winfo_height())  # Adjust the divisor to change font size relative to window size
+        window_size = min(self.window.winfo_width(), self.window.winfo_height())
         return window_size
 
     def create_title_page(self):
         self.title_frame = tk.Frame(self.window, bg="white", bd=2, relief="solid", height=self.window.winfo_height() * 0.2)
 
         def update_title(event=None):
-            font_size = self.get_window_size()//15
-            title_bold_font = ("Helvetica", font_size, "bold")
-            name_bold_font = ("Helvetica", font_size//2, "bold", "underline")
+            window_size = self.get_window_size()
+            title_bold_font = ("Helvetica", window_size//15, "bold")
+            name_bold_font = ("Helvetica", window_size//35, "bold", "underline")
             self.title_label.config(font=title_bold_font)
-            self.name_label.config(font=name_bold_font, pady=font_size-40)
-            self.border_frame.config(height=font_size-20)
+            self.name_label.config(font=name_bold_font, pady=window_size//18)
+            self.border_frame.config(height=window_size//17)
 
         self.title_label = tk.Label(self.title_frame, text="NAMELIST", font=("Helvetica", self.get_window_size()//15, 'bold'), anchor=W, bg='white')
         self.title_label.pack(side="left", expand=True, fill="both")
@@ -494,8 +654,8 @@ class NameList:
         self.toolbar_frame = tk.Frame(self.window, bg="white", bd=2, relief="solid", width=self.window.winfo_width() * 0.2)
 
         def update_toolbar(event=None):
-            font_size = min(self.window.winfo_width(), self.window.winfo_height()) // 50
-            bold_font = ("Helvetica", int(font_size//1.3), "bold")
+            window_size = min(self.window.winfo_width(), self.window.winfo_height()) // 50
+            bold_font = ("Helvetica", int(window_size//1.3), "bold")
             lobbyButton.config(font=bold_font, width=int(window_size//1.1))
             nameListButton.config(font=bold_font, width=int(window_size//1.1))
             registrationButton.config(font=bold_font, width=int(window_size//1.1))
@@ -507,13 +667,13 @@ class NameList:
 
         self.toolbar_frame.bind("<Configure>", update_toolbar)
 
-        lobbyButton = Button(self.toolbar_frame, text="LOBBY", command=self.LaunchLobby, font=("Helvetica", self.get_window_size()//15, 'bold'), width=150, cursor="hand2", relief='groove')
+        lobbyButton = Button(self.toolbar_frame, text="LOBBY", command=self.LaunchLobby, font=("Helvetica", self.get_window_size()//18, 'bold'), width=150, cursor="hand2", relief='groove')
         lobbyButton.place(relx=0.5, rely=0.3, anchor="center")
 
-        nameListButton = Button(self.toolbar_frame, text="NAME LIST", command=self.LaunchNameList, font=("Helvetica", self.get_window_size()//15, 'bold'), width=150, cursor="hand2", relief='groove')
+        nameListButton = Button(self.toolbar_frame, text="NAME LIST", command=self.LaunchNameList, font=("Helvetica", self.get_window_size()//18, 'bold'), width=150, cursor="hand2", relief='groove')
         nameListButton.place(relx=0.5, rely=0.4, anchor="center")
 
-        registrationButton = Button(self.toolbar_frame, text="REGISTRATION", command=self.LaunchRegistration, font=("Helvetica", self.get_window_size()//15, 'bold'), width=150, cursor="hand2", relief='groove')
+        registrationButton = Button(self.toolbar_frame, text="REGISTRATION", command=self.LaunchRegistration, font=("Helvetica", self.get_window_size()//18, 'bold'), width=150, cursor="hand2", relief='groove')
         registrationButton.place(relx=0.5, rely=0.5, anchor="center")
 
         image = Image.open("./Logo.png")
