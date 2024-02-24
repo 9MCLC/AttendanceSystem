@@ -18,7 +18,7 @@ elif env == 'prod':
     port = 5000
 
 # apiEndpoint = f"http://60.48.85.4:{port}"
-apiEndpoint = f"http://192.168.0.119:{port}"
+apiEndpoint = f"http://124.13.168.178:{port}"
 
 class App:
     def __init__(self, window, window_title):

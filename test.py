@@ -9,17 +9,15 @@ from datetime import datetime
 from PIL import Image, ImageTk
 import os
 import re
-import time
 
-port = 5000
-# env = input('input your env: "dev or prod" ')
-# if env == 'dev':
-#     port = 5001
-# elif env == 'prod':
-#     port = 5000
+env = input('input your env: "dev or prod" ')
+if env == 'dev':
+    port = 5001
+elif env == 'prod':
+    port = 5000
 
-# apiEndpoint = f"http://60.48.85.4:{port}"
-apiEndpoint = f"http://192.168.0.119:{port}"
+apiEndpoint = f"http://60.48.85.4:{port}"
+apiEndpoint = f"http://124.13.168.178:{port}"
 
 
 class Lobby:
@@ -33,6 +31,7 @@ class Lobby:
         self.window.grid_rowconfigure(1, weight=0)
         self.window.grid_rowconfigure(2, weight=9)
         self.window.minsize(800, 400)
+        self.window.grid_propagate(False)
         def toggle_fullscreen(event = None):
             state = not self.window.attributes('-fullscreen')
             self.window.attributes('-fullscreen', state)
@@ -69,6 +68,7 @@ class Lobby:
 
     def create_title_page(self):
         self.title_frame = tk.Frame(self.window, bg="white", bd=2, relief="solid", height=self.window.winfo_height() * 0.2)
+        self.title_frame.grid_propagate(False)
 
         def update_title(event=None):
             window_size = self.get_window_size()
@@ -93,6 +93,7 @@ class Lobby:
 
     def create_toolbar(self):
         self.toolbar_frame = tk.Frame(self.window, bg="white", bd=2, relief="solid", width=self.window.winfo_width() * 0.2)
+        self.toolbar_frame.grid_propagate(False)
 
         def update_toolbar(event=None):
             window_size = min(self.window.winfo_width(), self.window.winfo_height()) // 50
@@ -137,6 +138,7 @@ class Lobby:
         
         self.function_frame = tk.Frame(self.window, bg="white", bd=2, relief="solid")
         self.function_frame.grid(row=2, column=1, sticky="nsew")
+        self.function_frame.grid_propagate(False)
 
         self.function_frame.grid_columnconfigure(0, weight=15)
         self.function_frame.grid_columnconfigure(1, weight=20)
@@ -152,6 +154,9 @@ class Lobby:
         self.textFrame = tk.Frame(self.function_frame, bg="white", bd=2, relief="solid")
         self.QRFrame = tk.Frame(self.function_frame, bg="white", bd=2, relief="solid")
         self.infoFrame = tk.Frame(self.function_frame, bg="white", bd=2, relief="solid")
+        self.textFrame.grid_propagate(False)
+        self.QRFrame.grid_propagate(False)
+        self.infoFrame.grid_propagate(False)
 
 
         self.textFrame.grid(row=1, column=1, sticky='nsew')
@@ -186,7 +191,6 @@ class Lobby:
         self.update()
 
     def show_success_label(self, name="Yew Hong Yin"):
-        self.infoFrame.grid_propagate(False)
         self.successInfoFrame = tk.Frame(self.infoFrame, bg="white")
         self.successInfoFrame.grid_rowconfigure(0, weight=4)
         self.successInfoFrame.grid_rowconfigure(1, weight=2)
@@ -215,7 +219,6 @@ class Lobby:
 
     def show_fail_label(self, message="Failed", name="YHY", time=None):
         self.failInfoFrame = tk.Frame(self.infoFrame, bg="white")
-        self.infoFrame.grid_propagate(False)
 
         if message == "Failed":
             self.failInfoFrame.grid_rowconfigure(0, weight=4)
@@ -323,8 +326,8 @@ class Registration:
         self.window.grid_rowconfigure(0, weight=1)
         self.window.grid_rowconfigure(1, weight=0)
         self.window.grid_rowconfigure(2, weight=9)
-        self.window.grid_propagate(False)
         self.window.minsize(800, 400)
+        self.window.grid_propagate(False)
         def toggle_fullscreen(event = None):
             state = not self.window.attributes('-fullscreen')
             self.window.attributes('-fullscreen', state)
@@ -359,6 +362,7 @@ class Registration:
 
     def create_title_page(self):
         self.title_frame = tk.Frame(self.window, bg="white", bd=2, relief="solid", height=self.window.winfo_height() * 0.2)
+        self.title_frame.grid_propagate(False)
 
         def update_title(event=None):
             window_size = self.get_window_size()
@@ -383,6 +387,7 @@ class Registration:
 
     def create_toolbar(self):
         self.toolbar_frame = tk.Frame(self.window, bg="white", bd=2, relief="solid", width=self.window.winfo_width() * 0.2)
+        self.toolbar_frame.grid_propagate(False)
 
         def update_toolbar(event=None):
             window_size = min(self.window.winfo_width(), self.window.winfo_height()) // 50
@@ -453,6 +458,7 @@ class Registration:
                 self.dob_Entry.config(fg='gray')
         self.function_frame = tk.Frame(self.window, bg="white", bd=2, relief="solid")
         self.function_frame.grid(row=2, column=1, sticky="nsew")
+        self.function_frame.grid_propagate(False)
         self.function_frame.grid_rowconfigure(0, weight=15)
         self.function_frame.grid_rowconfigure(1, weight=7)
         self.function_frame.grid_rowconfigure(2, weight=3)
@@ -469,8 +475,7 @@ class Registration:
         self.function_frame.grid_columnconfigure(0, weight=2)
         self.function_frame.grid_columnconfigure(1, weight=5)
         self.function_frame.grid_columnconfigure(2, weight=3)
-        self.function_frame.grid_propagate(False)
-        self.window.bind("<Configure>", update_function)
+        self.function_frame.bind("<Configure>", update_function)
 
         successButton = Button(self.function_frame, text="SUCCESS", command=self.show_success_label, font=("Helvetica", self.get_window_size()//18, 'bold'), width=15, cursor="hand2", relief='groove')
         successButton.place(relx=0, rely=0.3, anchor="center")
@@ -484,13 +489,13 @@ class Registration:
         self.name_Label = Label(self.function_frame, text="Name", font=("Helvetica", self.get_window_size()//20), bg='white')
         self.name_Label.grid(row=1, column=0, sticky='e')
 
-        self.name_Entry = Entry(self.function_frame, relief='solid', font=("Helvetica", self.get_window_size()//20), justify='left')
+        self.name_Entry = Entry(self.function_frame, relief='solid', font=("Helvetica", self.get_window_size()//20), justify='center')
         self.name_Entry.grid(row=1, column=1, sticky='nsew')
 
         self.phNumber_Label = Label(self.function_frame, text="Phone Number", font=("Helvetica", self.get_window_size()//20), bg='white')
         self.phNumber_Label.grid(row=3, column=0, sticky='e')
 
-        self.phNumber_Entry = Entry(self.function_frame, relief='solid', fg='gray', font=("Helvetica", self.get_window_size()//20), justify='left')
+        self.phNumber_Entry = Entry(self.function_frame, relief='solid', fg='gray', font=("Helvetica", self.get_window_size()//20), justify='center')
         self.phNumber_Entry.insert(0, "(EG: 012-34567890)")
         self.phNumber_Entry.bind('<FocusIn>', ph_on_entry_click)
         self.phNumber_Entry.bind('<FocusOut>', ph_on_focus_out)
@@ -499,7 +504,7 @@ class Registration:
         self.dob_Label = Label(self.function_frame, text="Date Of Birth", font=("Helvetica", self.get_window_size()//20), bg='white')
         self.dob_Label.grid(row=5, column=0, sticky='e')
 
-        self.dob_Entry = Entry(self.function_frame, relief='solid', fg='gray', font=("Helvetica", self.get_window_size()//20), justify='left')
+        self.dob_Entry = Entry(self.function_frame, relief='solid', fg='gray', font=("Helvetica", self.get_window_size()//20), justify='center')
         self.dob_Entry.insert(0, "(EG: 2003-12-01)")
         self.dob_Entry.bind('<FocusIn>', dob_on_entry_click)
         self.dob_Entry.bind('<FocusOut>', dob_on_focus_out)
@@ -542,7 +547,7 @@ class Registration:
     
     def show_success_label(self):
         self.successInfoFrame = tk.Frame(self.function_frame, bg="white")
-        self.function_frame.grid_propagate(False)
+        self.successInfoFrame.grid_propagate(False)
         self.successInfoFrame.grid_rowconfigure(0, weight=4)
         self.successInfoFrame.grid_rowconfigure(1, weight=1)
         self.successInfoFrame.grid_rowconfigure(2, weight=2)
@@ -559,7 +564,7 @@ class Registration:
 
     def show_fail_label(self, error=401):
         self.failInfoFrame = tk.Frame(self.function_frame, bg="white")
-        self.function_frame.grid_propagate(False)
+        self.failInfoFrame.grid_propagate(False)
         self.failInfoFrame.grid_rowconfigure(0, weight=4)
         self.failInfoFrame.grid_rowconfigure(1, weight=1)
         self.failInfoFrame.grid_rowconfigure(2, weight=2)
@@ -628,6 +633,7 @@ class NameList:
 
     def create_title_page(self):
         self.title_frame = tk.Frame(self.window, bg="white", bd=2, relief="solid", height=self.window.winfo_height() * 0.2)
+        self.title_frame.grid_propagate(False)
 
         def update_title(event=None):
             window_size = self.get_window_size()
@@ -645,6 +651,7 @@ class NameList:
 
         self.border_frame = tk.Frame(self.window, bg="black", height=self.get_window_size()//17)
         self.border_frame.grid(row=1, column=0, columnspan=2, sticky="nsew")
+        self.border_frame.grid_propagate(False)
 
         self.title_frame.bind("<Configure>", update_title)
 
@@ -652,6 +659,7 @@ class NameList:
 
     def create_toolbar(self):
         self.toolbar_frame = tk.Frame(self.window, bg="white", bd=2, relief="solid", width=self.window.winfo_width() * 0.2)
+        self.toolbar_frame.grid_propagate(False)
 
         def update_toolbar(event=None):
             window_size = min(self.window.winfo_width(), self.window.winfo_height()) // 50
@@ -688,298 +696,230 @@ class NameList:
         self.toolbar_frame.grid(row=2, column=0, sticky="nsew")
 
     def create_function_frame(self):
-        function_frame = tk.Frame(self.window, bg="white", bd=2, relief="solid")
-        function_label = tk.Label(function_frame, text="Function Frame", font=("Helvetica", 12), bg='white')
-        function_label.pack(expand=True, fill="both")
-        function_frame.grid(row=2, column=1, sticky="nsew")
+        def update_function(event=None):
+            window_size = self.get_window_size()
+            text_bold_font = ("Helvetica", window_size//40, "bold")
+            entry_font = ("Helvetica", window_size//50, 'bold')
+            self.searchLabel.config(font=text_bold_font)
+            self.searchEntry.config(font=entry_font)
+            self.unattendButton.config(font=entry_font)
+            self.attendButton.config(font=entry_font)
+            self.removeButton.config(font=entry_font)
 
-def register_Page():
-    reg = Tk()
-    width, height = reg.winfo_screenwidth(), reg.winfo_screenheight()
-    reg.geometry('%dx%d+0+0' % (width,height))
-    def toggle_fullscreen(event = None):
-        state = not reg.attributes('-fullscreen')
-        reg.attributes('-fullscreen', state)
+        def search_on_entry_click(event):
+            if self.searchEntry.get() == "Enter name here...":
+                self.searchEntry.delete(0, "end")
+                self.searchEntry.config(fg='black')
 
-    def on_escape(event):
-        reg.attributes('-fullscreen', False)
-    reg.attributes('-fullscreen', True)
+        def search_on_focus_out(event):
+            if self.searchEntry.get() == "":
+                self.searchEntry.insert(0, "Enter name here...")
+                self.searchEntry.config(fg='gray')
 
-    reg.bind("<F11>", toggle_fullscreen)
-    reg.bind("<Escape>", on_escape)
-    reg.title("Register")
+        def updateSearchCriteria(event):
+            self.searchCriteria = self.searchEntry.get().strip()
+            self.update_table()
 
-    registerLabel = Label(reg, text="Register", font=("Helvetica", 35))
-    registerLabel.pack()
-    registerLabel.place(relx= 0.5, rely=0.15, anchor=CENTER)
-
-    name_Label = Label(reg, text="Name:", font=("Helvetica", 12))
-    name_Label.pack()
-    name_Label.place(relx= 0.35, rely=0.25, anchor=CENTER)
-
-    name_Entry = Entry(reg)
-    name_Entry.pack()
-    name_Entry.place(relx= 0.5, rely=0.25, width=250, anchor=CENTER)
-
-    phNumber_Label = Label(reg, text="Phone Number:", font=("Helvetica", 12))
-    phNumber_Label.pack()
-    phNumber_Label.place(relx= 0.35, rely=0.35, anchor=CENTER)
-
-    phNumber_Entry = Entry(reg)
-    phNumber_Entry.pack()
-    phNumber_Entry.place(relx= 0.5, rely=0.35, width=250, anchor=CENTER)
-
-    phNumber_Label2 = Label(reg, text="(Example: XXX-XXXXXXXX)", font=("Helvetica", 10))
-    phNumber_Label2.pack()
-    phNumber_Label2.place(relx= 0.5, rely=0.40, anchor=CENTER)
-
-    dob_Label = Label(reg, text="Date Of Birth:", font=("Helvetica", 12))
-    dob_Label.pack()
-    dob_Label.place(relx= 0.35, rely=0.45, anchor=CENTER)
-
-    dob_Entry = Entry(reg)
-    dob_Entry.pack()
-    dob_Entry.place(relx= 0.5, rely=0.45, width=250, anchor=CENTER)
-
-    dob_Label2 = Label(reg, text="(Example: YYYY-MM-DD)", font=("Helvetica", 10))
-    dob_Label2.pack()
-    dob_Label2.place(relx= 0.5, rely=0.50, anchor=CENTER)    
-
-    def registerNewUser():
-        phNumberPattern = re.compile(r'^\d{3}-\d{7,8}$')
-        datePattern = re.compile(r'^\d{4}-\d{2}-\d{2}$')
-        name_Input = name_Entry.get()
-        phNumber_Input = phNumber_Entry.get() if phNumberPattern.match(phNumber_Entry.get()) else None
-        dob_Input = dob_Entry.get() if datePattern.match(dob_Entry.get()) else None
+        self.function_frame = tk.Frame(self.window, bg="white", bd=2, relief="solid")
+        self.function_frame.grid(row=2, column=1, sticky="nsew")
+        self.function_frame.grid_propagate(False)
+        self.function_frame.grid_rowconfigure(0, weight=5)
+        self.function_frame.grid_rowconfigure(1, weight=5)
+        self.function_frame.grid_rowconfigure(2, weight=5)
+        self.function_frame.grid_rowconfigure(3, weight=70)
+        self.function_frame.grid_rowconfigure(4, weight=15)
+        self.function_frame.grid_columnconfigure(0, weight=5)
+        self.function_frame.grid_columnconfigure(1, weight=20)
+        self.function_frame.grid_columnconfigure(2, weight=40)
+        self.function_frame.grid_columnconfigure(3, weight=10)
+        self.function_frame.grid_columnconfigure(4, weight=20)
+        self.function_frame.grid_columnconfigure(5, weight=5)
+        self.function_frame.bind("<Configure>", update_function)
         
-        if all([name_Input, phNumber_Input, dob_Input]):
-            body = {
-                "name": name_Input,
-                "phoneNumber": phNumber_Input,
-                "birthDate": dob_Input
-            }
-            userExist = requests.get(f'{apiEndpoint}/getUser', params=body)
-            if userExist.json().get('rowCount') == 0:
-                registerUser = requests.post(f'{apiEndpoint}/addUser', json=body)
-                if registerUser.status_code == 200:
-                    registerUserResponse = registerUser.json()
-                    newQR = qrcode.make(registerUserResponse.get('UUID'))
-                    current_directory = os.path.dirname(os.path.abspath(__file__))
-                    file_path = os.path.join(current_directory, 'QR Codes', f'{name_Input}.png')
-                    newQR.save(file_path)
-                    show_temporary_label(reg, "Register Successfully")
+        self.searchLabel = Label(self.function_frame, text="Search:", font=("Helvetica", self.get_window_size()//10), bg='white', justify='left')
+        self.searchLabel.grid(row=1, column=1, sticky='nsew')
 
-                    name_Entry.delete(0, END)
-                    phNumber_Entry.delete(0, END)
-                    dob_Entry.delete(0, END)
+        self.searchEntry = Entry(self.function_frame, relief='solid', fg='gray', justify='left', bd=2)
+        self.searchEntry.insert(0, "Enter name here...")
+        self.searchEntry.bind('<FocusIn>', search_on_entry_click)
+        self.searchEntry.bind('<FocusOut>', search_on_focus_out)
+        self.searchEntry.bind("<KeyRelease>", updateSearchCriteria)
+        self.searchEntry.grid(row=1, column=2, sticky='nsew')
+
+        self.table_frame = tk.Frame(self.function_frame, bg="white", bd=2, relief="solid")
+        self.table_frame.grid(row=3, column=1, columnspan=2, sticky="nsew")
+        self.table_frame.grid_propagate(False)
+        self.table_frame.grid_rowconfigure(0, weight=1)
+        self.table_frame.grid_columnconfigure(0, weight=1)
+
+        self.button_frame = tk.Frame(self.function_frame, bg="white")
+        self.button_frame.grid(row=3, column=4, sticky="nsew")
+        self.button_frame.grid_propagate(False)
+        self.button_frame.grid_rowconfigure(0, weight=20)
+        self.button_frame.grid_rowconfigure(1, weight=10)
+        self.button_frame.grid_rowconfigure(2, weight=5)
+        self.button_frame.grid_rowconfigure(3, weight=10)
+        self.button_frame.grid_rowconfigure(4, weight=5)
+        self.button_frame.grid_rowconfigure(5, weight=10)
+        self.button_frame.grid_rowconfigure(6, weight=20)
+        self.button_frame.grid_columnconfigure(0, weight=1)
+
+        self.unattendButton = Button(self.button_frame, text="Unattend User", command=self.unattend, font=("Helvetica", self.get_window_size()//18, 'bold'), width=20, cursor="hand2", relief='groove')
+        self.unattendButton.grid(row=1, column=0)
+
+        self.attendButton = Button(self.button_frame, text="Attend User", command=self.attend, font=("Helvetica", self.get_window_size()//18, 'bold'), width=20, cursor="hand2", relief='groove')
+        self.attendButton.grid(row=3, column=0)
+
+        self.removeButton = Button(self.button_frame, text="Remove User", command=self.remove, font=("Helvetica", self.get_window_size()//18, 'bold'), width=20, cursor="hand2", relief='groove')
+        self.removeButton.grid(row=5, column=0)
+
+        self.create_table()
+
+    def update_table(self):
+        def reformatData(data:list):
+            returnData = []
+            for row in data:
+                tempDict = {}
+                tempDict['Name'] = row['Name']
+                tempDict['PhoneNumber'] = row['PhoneNumber']
+                tempDict['Attendance'] = row['Attended']
+                returnData.append(tempDict)
+            return returnData
+        def filterByName(data: list, target):
+            if target == '':
+                filtered_data = data
             else:
-                show_temporary_label(reg, "User already exist.")
-        else:
-            show_temporary_label(reg, "Information is not inserted in the correct format.")
+                filtered_data = [row for row in data if str(target.lower()) in row["Name"].lower()]
 
-    def show_temporary_label(window, message):
-        label = Label(window, text=message, font=("Helvetica", 25))
-        label.place(relx= 0.5, rely=0.7, anchor=CENTER)
-        window.after(5000, label.destroy)
+            return filtered_data
+        data = requests.get(f"{apiEndpoint}/getTableData").json()
+        self.formattedData = reformatData(data['users'])
+        for row in self.table.get_children():
+            self.table.delete(row)
+            
+        for col in self.formattedData[0].keys():
+            self.table.heading(col, text=col)
+            self.table.column(col, anchor="center", width=300)
+        for row in filterByName(self.formattedData, self.searchCriteria):
+            self.table.insert("", "end", values=list(row.values()))
 
-    submitButton = Button(reg, text="Submit", command=registerNewUser)
-    submitButton.pack()
-    submitButton.place(relx= 0.5, rely=0.55, width=150, anchor=CENTER)
+    def create_table(self):
+        self.table = ttk.Treeview(self.table_frame, columns=('Name', 'PhoneNumber', 'Attendance'), show="headings")
+        self.table.grid(row=0, column=0, sticky='nsew')
+        self.searchCriteria = ''
+        self.update_table()
 
-    closeButton = Button(reg, text="Close", command=reg.destroy)
-    closeButton.place(relx= 0.5, rely=0.60, width=300, anchor=CENTER)
-
-    reg.mainloop()
-
-def nameList_Page():
-    nl = Tk()
-    width, height = nl.winfo_screenwidth(), nl.winfo_screenheight()
-    nl.geometry('%dx%d+0+0' % (width,height))
-    nl.title("Name List")
-    def toggle_fullscreen(event = None):
-        state = not nl.attributes('-fullscreen')
-        nl.attributes('-fullscreen', state)
-
-    def on_escape(event):
-        nl.attributes('-fullscreen', False)
-    nl.attributes('-fullscreen', True)
-
-    nl.bind("<F11>", toggle_fullscreen)
-    nl.bind("<Escape>", on_escape)
-
-    nameList_leftFrame = LabelFrame(nl, text="Name List", font=("Helvetica", 15))
-    nameList_leftFrame.grid(row=0, column=0)
-    nameList_leftframelabel = Label(nameList_leftFrame, padx = 500, pady = 300)
-
-    def create_table(searchCriteria: str = ''):
-        def show_temporary_label(message):
-            label = Label(nl, text=message, font=("Helvetica", 25))
-            label.place(x=620, y=550)
-            nl.after(2000, label.destroy)
-        def removeUser():
-            def deleteUser():
-                uuid = table.item(table.focus())['values'][4]
-                requests.delete(f'{apiEndpoint}/removeUser', json={'UUID': uuid})
-                cfm.destroy()
-                update_table()
-            if table.selection():
+    def unattend(self):
+        def clearUser():
+            name = self.table.item(self.table.focus())['values'][0]
+            uuid = requests.get(f'{apiEndpoint}/getUser', params={'name': name}).json().get('users')[0].get('UUID')
+            requests.delete(f'{apiEndpoint}/removeAttendance', json={'UUID': uuid})
+            cfm.destroy()
+            self.update_table()
+        if self.table.selection():
+            name = self.table.item(self.table.focus())['values'][0]
+            attended = self.table.item(self.table.focus())['values'][2]
+            if attended == "No":
+                self.temp_msg(message="You can't unmark an absent user")
+            else:
                 cfm = Tk()
                 width, height = cfm.winfo_screenwidth()/8, cfm.winfo_screenwidth()/16
                 center_x, center_y = int((cfm.winfo_screenwidth() - width) / 2), int((cfm.winfo_screenheight() - height) / 2)
                 cfm.geometry('%dx%d+%d+%d' % (width, height, center_x, center_y))
                 cfm.title("Confirmation")
-                
-                name = table.item(table.focus())['values'][1]
-                
-                confirmationMessage_label = Label(cfm, text="Are you sure to remove user?", font=("Arial", 10))
+
+                confirmationMessage_label = Label(cfm, text="Remove user's attendance", font=("Arial", 10))
                 confirmationMessage_label.place(x=0, y=0)
 
                 confirmationDetails_label = Label(cfm, text=f"Name: {name}", font=("Arial", 10))
-                confirmationDetails_label.place(x=0, y=height/3)
+                confirmationDetails_label.place(x=0, y=30)
 
-                confirmButton = Button(cfm, text="Yes", command=deleteUser)
-                confirmButton.place(x=0, y=height/3*2, width=width/2)
-    
+                confirmButton = Button(cfm, text="Yes", command=clearUser)
+                confirmButton.place(x=0, y=60, width=width/2)
+
                 closeButton = Button(cfm, text="Close", command=cfm.destroy)
-                closeButton.place(x=width/2, y=height/3*2, width=width/2)
+                closeButton.place(x=width/2, y=60, width=width/2)
+                    
                 cfm.mainloop()
+        else:
+            self.temp_msg(message='PLEASE SELECT A USER')
+
+    def attend(self):
+        def addUser():
+            name = self.table.item(self.table.focus())['values'][0]
+            uuid = requests.get(f'{apiEndpoint}/getUser', params={'name': name}).json().get('users')[0].get('UUID')
+            requests.post(f'{apiEndpoint}/addAttendance', json={'UUID': uuid, 'name': name})
+            cfm.destroy()
+            self.update_table()
+        if self.table.selection():
+            name = self.table.item(self.table.focus())['values'][0]
+            attended = self.table.item(self.table.focus())['values'][2]
+            if attended == "Yes":
+                self.temp_msg(message="You can't mark a marked user")
             else:
-                show_temporary_label("Please select a user")
+                cfm = Tk()
+                width, height = cfm.winfo_screenwidth()/8, cfm.winfo_screenwidth()/16
+                center_x, center_y = int((cfm.winfo_screenwidth() - width) / 2), int((cfm.winfo_screenheight() - height) / 2)
+                cfm.geometry('%dx%d+%d+%d' % (width, height, center_x, center_y))
+                cfm.title("Confirmation")
 
-        def unAttendUser():
-            def clearUser():
-                uuid = table.item(table.focus())['values'][4]
-                requests.delete(f'{apiEndpoint}/removeAttendance', json={'UUID': uuid})
-                cfm.destroy()
-                update_table()
-            if table.selection():
-                name = table.item(table.focus())['values'][1]
-                attended = table.item(table.focus())['values'][0]
-                if attended == "No":
-                    show_temporary_label("User is yet to be marked, you can't unmark an absent user")
-                else:
-                    cfm = Tk()
-                    width, height = cfm.winfo_screenwidth()/8, cfm.winfo_screenwidth()/16
-                    center_x, center_y = int((cfm.winfo_screenwidth() - width) / 2), int((cfm.winfo_screenheight() - height) / 2)
-                    cfm.geometry('%dx%d+%d+%d' % (width, height, center_x, center_y))
-                    cfm.title("Confirmation")
+                confirmationMessage_label = Label(cfm, text="Mark user's attendance", font=("Arial", 10))
+                confirmationMessage_label.place(x=0, y=0)
 
-                    confirmationMessage_label = Label(cfm, text="Remove user's attendance", font=("Arial", 10))
-                    confirmationMessage_label.place(x=0, y=0)
+                confirmationDetails_label = Label(cfm, text=f"Name: {name}", font=("Arial", 10))
+                confirmationDetails_label.place(x=0, y=30)
 
-                    confirmationDetails_label = Label(cfm, text=f"Name: {name}", font=("Arial", 10))
-                    confirmationDetails_label.place(x=0, y=30)
+                confirmButton = Button(cfm, text="Yes", command=addUser)
+                confirmButton.place(x=0, y=60, width=width/2)
 
-                    confirmButton = Button(cfm, text="Yes", command=clearUser)
-                    confirmButton.place(x=0, y=60, width=width/2)
-
-                    closeButton = Button(cfm, text="Close", command=cfm.destroy)
-                    closeButton.place(x=width/2, y=60, width=width/2)
+                closeButton = Button(cfm, text="Close", command=cfm.destroy)
+                closeButton.place(x=width/2, y=60, width=width/2)
                     
-                    cfm.mainloop()
-            else:
-                show_temporary_label("Please select a user")
+                cfm.mainloop()
+        else:
+            self.temp_msg(message="Please select a user")
 
-        def AttendUser():
-            def addUser():
-                uuid = table.item(table.focus())['values'][4]
-                Name = table.item(table.focus())['values'][1]
-                requests.post(f'{apiEndpoint}/addAttendance', json={'UUID': uuid, 'name': Name})
-                cfm.destroy()
-                update_table()
-            if table.selection():
-                name = table.item(table.focus())['values'][1]
-                attended = table.item(table.focus())['values'][0]
-                if attended == "Yes":
-                    show_temporary_label("User is already marked, you can't mark a marked user")
-                else:
-                    cfm = Tk()
-                    width, height = cfm.winfo_screenwidth()/8, cfm.winfo_screenwidth()/16
-                    center_x, center_y = int((cfm.winfo_screenwidth() - width) / 2), int((cfm.winfo_screenheight() - height) / 2)
-                    cfm.geometry('%dx%d+%d+%d' % (width, height, center_x, center_y))
-                    cfm.title("Confirmation")
+    def remove(self):
+        def deleteUser():
+            name = self.table.item(self.table.focus())['values'][0]
+            uuid = requests.get(f'{apiEndpoint}/getUser', params={'name': name}).json().get('users')[0].get('UUID')
+            requests.delete(f'{apiEndpoint}/removeUser', json={'UUID': uuid})
+            cfm.destroy()
+            self.update_table()
+        if self.table.selection():
+            cfm = Tk()
+            width, height = cfm.winfo_screenwidth()/8, cfm.winfo_screenwidth()/16
+            center_x, center_y = int((cfm.winfo_screenwidth() - width) / 2), int((cfm.winfo_screenheight() - height) / 2)
+            cfm.geometry('%dx%d+%d+%d' % (width, height, center_x, center_y))
+            cfm.title("Confirmation")
+                
+            name = self.table.item(self.table.focus())['values'][0]
 
-                    confirmationMessage_label = Label(cfm, text="Mark user's attendance", font=("Arial", 10))
-                    confirmationMessage_label.place(x=0, y=0)
+            confirmationMessage_label = Label(cfm, text="Are you sure to remove user?", font=("Arial", 10))
+            confirmationMessage_label.place(x=0, y=0)
 
-                    confirmationDetails_label = Label(cfm, text=f"Name: {name}", font=("Arial", 10))
-                    confirmationDetails_label.place(x=0, y=30)
+            confirmationDetails_label = Label(cfm, text=f"Name: {name}", font=("Arial", 10))
+            confirmationDetails_label.place(x=0, y=height/3)
 
-                    confirmButton = Button(cfm, text="Yes", command=addUser)
-                    confirmButton.place(x=0, y=60, width=width/2)
-
-                    closeButton = Button(cfm, text="Close", command=cfm.destroy)
-                    closeButton.place(x=width/2, y=60, width=width/2)
-                    
-                    cfm.mainloop()
-            else:
-                show_temporary_label("Please select a user")
+            confirmButton = Button(cfm, text="Yes", command=deleteUser)
+            confirmButton.place(x=0, y=height/3*2, width=width/2)
+    
+            closeButton = Button(cfm, text="Close", command=cfm.destroy)
+            closeButton.place(x=width/2, y=height/3*2, width=width/2)
+            cfm.mainloop()
+        else:
+            self.temp_msg(message='PLEASE SELECT A USER')
+    
+    def temp_msg(self, message):
+        self.selectUserFrame = tk.Frame(self.function_frame, bg="white")
+        self.selectUserFrame.grid_propagate(False)
+        self.selectUserFrame.grid_rowconfigure(0, weight=1)
+        self.selectUserFrame.grid_columnconfigure(0, weight=1)
+        self.selectUserFrame.grid(row=4, column=1, columnspan=2, sticky='nsew')
+        label1 = Label(self.selectUserFrame, text=message, font=("Helvetica", int(self.get_window_size()//30), 'bold'), bg='white')
+        label1.grid(row=0, column=0)
         
-        def updateSearchCriteria(*args):
-                nonlocal searchCriteria
-                searchCriteria = search_entry.get().strip()
-                update_table()
-        def update_table():
-            def reformatData(data:list):
-                returnData = []
-                for row in data:
-                    tempDict = {}
-                    tempDict['Attended Today'] = row['Attended']
-                    tempDict['Name'] = row['Name']
-                    tempDict['PhoneNumber'] = row['PhoneNumber']
-                    tempDict['BirthDate'] = row['BirthDate']
-                    tempDict['UUID'] = row['UUID']
-                    returnData.append(tempDict)
-                return returnData
-            def filterByName(data: list, target):
-                if target == '':
-                    filtered_data = data
-                else:
-                    filtered_data = [row for row in data if str(target.lower()) in row["Name"].lower()]
-
-                return filtered_data
-            data = requests.get(f"{apiEndpoint}/getTableData").json()
-            formattedData = reformatData(data['users'])
-            for row in table.get_children():
-                table.delete(row)
-            
-            for col in formattedData[0].keys():
-                table.heading(col, text=col)
-                table.column(col, anchor="center", width=300)
-            for row in filterByName(formattedData, searchCriteria):
-                table.insert("", "end", values=list(row.values()))
-
-        table = ttk.Treeview(nameList_leftFrame, columns=('Attended Today', 'Name', 'PhoneNumber', 'BirthDate', 'UUID'), show="headings", height=25)
-
-        search_label = Label(nameList_leftFrame, text="Search:", font=("Helvetica", 12))
-        search_label.place(x=500, y=550)
-
-        search_entry = Entry(nameList_leftFrame)
-        search_entry.place(relx=0.5, rely=0.5, width=250)
-        search_entry.insert(0, searchCriteria)
-        search_entry.bind("<KeyRelease>", updateSearchCriteria)
-
-        removeButton = Button(nl, text="Remove User", command=removeUser)
-        removeButton.place(relx=0.9, rely=0.2, width=150)
-
-        unAttendButton = Button(nl, text="Unattend", command=unAttendUser)
-        unAttendButton.place(relx=0.9, rely=0.3, width=150)
-
-        AttendButton = Button(nl, text="Attend", command=AttendUser)
-        AttendButton.place(relx=0.9, rely=0.4, width=150)
-
-        update_table()
-
-        table.pack()
-
-    create_table()
-
-    nameList_leftframelabel.pack()
-
-    closeButton = Button(nl, text="close", command=nl.destroy)
-    closeButton.place(x=630, y=700, width=300)
-
-    nl.mainloop()
+        self.selectUserFrame.after(5000, self.selectUserFrame.destroy)
 
 def main():
     app = Lobby()
