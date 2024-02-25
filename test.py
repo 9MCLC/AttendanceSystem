@@ -16,7 +16,7 @@ if env == 'dev':
 elif env == 'prod':
     port = 5000
 
-apiEndpoint = f"http://60.48.85.4:{port}"
+# apiEndpoint = f"http://60.48.85.4:{port}"
 apiEndpoint = f"http://124.13.168.178:{port}"
 
 
@@ -531,10 +531,10 @@ class Registration:
                 registerUser = requests.post(f'{apiEndpoint}/addUser', json=body)
                 if registerUser.status_code == 200:
                     registerUserResponse = registerUser.json()
-                    newQR = qrcode.make(registerUserResponse.get('UUID'))
+                    self.newQR = qrcode.make(registerUserResponse.get('UUID'))
                     current_directory = os.path.dirname(os.path.abspath(__file__))
                     file_path = os.path.join(current_directory, 'QR Codes', f'{name_Input}.png')
-                    newQR.save(file_path)
+                    self.newQR.save(file_path)
                     self.show_success_label()
 
                     self.name_Entry.delete(0, END)
@@ -544,8 +544,38 @@ class Registration:
                 self.show_fail_label(401)
         else:
             self.show_fail_label(422)
-    
+
+    def showQRCode(self, name='Yew Hong Yin'):
+        cfm = Tk()
+        width, height = cfm.winfo_screenwidth()/8, cfm.winfo_screenwidth()/16
+        center_x, center_y = int((cfm.winfo_screenwidth() - width) / 2), int((cfm.winfo_screenheight() - height) / 2)
+        cfm.geometry('%dx%d+%d+%d' % (width, height, center_x, center_y))
+        cfm.title("Confirmation")
+        image = Image.open(f"./QR Codes/{name}.png")
+        image.thumbnail((int(cfm.winfo_width() * 200), int(cfm.winfo_width() * 200)))
+        photo = ImageTk.PhotoImage(image)  # Keep a reference to the PhotoImage object
+
+        frame = tk.Frame(cfm, bg="white", bd=2, relief="solid")
+        frame.grid(row=2, column=1, sticky="nsew")
+
+        confirmationMessage_label = Label(frame, image=photo, font=("Arial", 10))
+        confirmationMessage_label.image = photo
+        confirmationMessage_label.place(x=0, y=0)
+
+        cfm.mainloop()
+
+    def showQR(self, name):
+        image = Image.open(f"./QR Codes/{name}.png")
+        image.thumbnail((int(self.QRWindow.winfo_width() * 200), int(self.QRWindow.winfo_width() * 200)))
+        photo = ImageTk.PhotoImage(image)  # Keep a reference to the PhotoImage object
+
+        image_label = Label(self.QRFrame, image=photo, bg='white')
+        image_label.image = photo  # Keep a reference to the PhotoImage object
+
+        image_label.grid(row=0, column=0, sticky='nsew')
+
     def show_success_label(self):
+        self.showQRCode()
         self.successInfoFrame = tk.Frame(self.function_frame, bg="white")
         self.successInfoFrame.grid_propagate(False)
         self.successInfoFrame.grid_rowconfigure(0, weight=4)
