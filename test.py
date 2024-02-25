@@ -16,8 +16,8 @@ if env == 'dev':
 elif env == 'prod':
     port = 5000
 
-# apiEndpoint = f"http://60.48.85.4:{port}"
-apiEndpoint = f"http://124.13.168.178:{port}"
+apiEndpoint = f"http://192.168.0.119:{5001}"
+# apiEndpoint = f"http://124.13.168.178:{port}"
 
 
 class Lobby:
@@ -341,7 +341,6 @@ class Registration:
         self.create_title_page()
         self.create_toolbar()
 
-        # self.update()
         self.window.mainloop()
 
     def LaunchLobby(self):
@@ -436,6 +435,7 @@ class Registration:
             self.name_Entry.config(font=entry_font)
             self.phNumber_Entry.config(font=entry_font)
             self.dob_Entry.config(font=entry_font)
+            self.infoFrame.grid(row=0, column=3, rowspan=6, sticky='nsew', pady=int(self.get_window_size()//18))
 
         def ph_on_entry_click(event):
             if self.phNumber_Entry.get() == "(EG: 012-34567890)":
@@ -459,7 +459,7 @@ class Registration:
         self.function_frame = tk.Frame(self.window, bg="white", bd=2, relief="solid")
         self.function_frame.grid(row=2, column=1, sticky="nsew")
         self.function_frame.grid_propagate(False)
-        self.function_frame.grid_rowconfigure(0, weight=15)
+        self.function_frame.grid_rowconfigure(0, weight=10)
         self.function_frame.grid_rowconfigure(1, weight=7)
         self.function_frame.grid_rowconfigure(2, weight=3)
         self.function_frame.grid_rowconfigure(3, weight=7)
@@ -467,24 +467,28 @@ class Registration:
         self.function_frame.grid_rowconfigure(5, weight=7)
         self.function_frame.grid_rowconfigure(6, weight=3)
         self.function_frame.grid_rowconfigure(7, weight=3)
-        self.function_frame.grid_rowconfigure(8, weight=7)
-        self.function_frame.grid_rowconfigure(9, weight=5)
-        self.function_frame.grid_rowconfigure(10, weight=5)
-        self.function_frame.grid_rowconfigure(11, weight=20)
-        self.function_frame.grid_rowconfigure(12, weight=15)
-        self.function_frame.grid_columnconfigure(0, weight=2)
-        self.function_frame.grid_columnconfigure(1, weight=5)
-        self.function_frame.grid_columnconfigure(2, weight=3)
+        self.function_frame.grid_rowconfigure(8, weight=8)
+        self.function_frame.grid_columnconfigure(0, weight=1)
+        self.function_frame.grid_columnconfigure(1, weight=4)
+        self.function_frame.grid_columnconfigure(2, weight=1)
+        self.function_frame.grid_columnconfigure(3, weight=4)
+        self.function_frame.grid_columnconfigure(4, weight=1)
         self.function_frame.bind("<Configure>", update_function)
+        
+        self.infoFrame = tk.Frame(self.function_frame, bg="white", bd=2, relief="solid")
+        self.infoFrame.grid_propagate(False)
+        self.infoFrame.grid(row=0, column=3, rowspan=6, sticky='nsew', pady=int(self.get_window_size()//18))
+        self.infoFrame.grid_rowconfigure(0, weight=1)
+        self.infoFrame.grid_columnconfigure(0, weight=1)
 
-        successButton = Button(self.function_frame, text="SUCCESS", command=self.show_success_label, font=("Helvetica", self.get_window_size()//18, 'bold'), width=15, cursor="hand2", relief='groove')
+        successButton = Button(self.function_frame, text="SUCCESS", command=self.success, font=("Helvetica", self.get_window_size()//18, 'bold'), width=15, cursor="hand2", relief='groove')
         successButton.place(relx=0, rely=0.3, anchor="center")
 
         nameListButton = Button(self.function_frame, text="FAIL", command=self.show_fail_label, font=("Helvetica", self.get_window_size()//18, 'bold'), width=15, cursor="hand2", relief='groove')
         nameListButton.place(relx=0, rely=0.4, anchor="center")
 
         self.registerLabel = Label(self.function_frame, text="Register", font=("Helvetica", self.get_window_size()//15), bg='white')
-        self.registerLabel.grid(row=0, column=0, columnspan=3)
+        self.registerLabel.grid(row=0, column=1)
 
         self.name_Label = Label(self.function_frame, text="Name", font=("Helvetica", self.get_window_size()//20), bg='white')
         self.name_Label.grid(row=1, column=0, sticky='e')
@@ -511,7 +515,7 @@ class Registration:
         self.dob_Entry.grid(row=5, column=1, sticky='nsew')
 
         self.submitButton = Button(self.function_frame, text="SUBMIT", command=self.Register, font=("Helvetica", self.get_window_size()//18, 'bold'), width=20, cursor="hand2", relief='groove')
-        self.submitButton.grid(row=7, column=0, columnspan=3)
+        self.submitButton.grid(row=7, column=1)
 
     def Register(self):
         phNumberPattern = re.compile(r'^\d{3}-\d{7,8}$')
@@ -535,7 +539,7 @@ class Registration:
                     current_directory = os.path.dirname(os.path.abspath(__file__))
                     file_path = os.path.join(current_directory, 'QR Codes', f'{name_Input}.png')
                     self.newQR.save(file_path)
-                    self.show_success_label()
+                    self.success(name=name_Input)
 
                     self.name_Entry.delete(0, END)
                     self.phNumber_Entry.delete(0, END)
@@ -545,50 +549,40 @@ class Registration:
         else:
             self.show_fail_label(422)
 
-    def showQRCode(self, name='Yew Hong Yin'):
-        cfm = Tk()
-        width, height = cfm.winfo_screenwidth()/8, cfm.winfo_screenwidth()/16
-        center_x, center_y = int((cfm.winfo_screenwidth() - width) / 2), int((cfm.winfo_screenheight() - height) / 2)
-        cfm.geometry('%dx%d+%d+%d' % (width, height, center_x, center_y))
-        cfm.title("Confirmation")
-        image = Image.open(f"./QR Codes/{name}.png")
-        image.thumbnail((int(cfm.winfo_width() * 200), int(cfm.winfo_width() * 200)))
-        photo = ImageTk.PhotoImage(image)  # Keep a reference to the PhotoImage object
+    def showQRCode(self, name):
+        self.QRInfoFrame = tk.Frame(self.infoFrame, bg="white")
+        self.QRInfoFrame.grid_rowconfigure(0, weight=4)
+        self.QRInfoFrame.grid_rowconfigure(1, weight=2)
+        self.QRInfoFrame.grid_columnconfigure(0, weight=1)
+        self.QRInfoFrame.grid(row=0, column=0, sticky='nsew')
+        self.QRImage = Image.open(f"./QR Codes/{name}.png")
+        self.QRImage.thumbnail((int(self.QRInfoFrame.winfo_width()*300), int(self.QRInfoFrame.winfo_width()*300)))
+        self.QRImage = ImageTk.PhotoImage(self.QRImage)
+        self.QRImage_label = tk.Label(self.QRInfoFrame, image=self.QRImage, bg='white', anchor='n')
+        self.QRImage_label.image = self.QRImage
 
-        frame = tk.Frame(cfm, bg="white", bd=2, relief="solid")
-        frame.grid(row=2, column=1, sticky="nsew")
+        self.QRImage_label.grid(row=0, column=0)
 
-        confirmationMessage_label = Label(frame, image=photo, font=("Arial", 10))
-        confirmationMessage_label.image = photo
-        confirmationMessage_label.place(x=0, y=0)
+        self.label1 = Label(self.QRInfoFrame, text=name, font=("Helvetica", int(self.get_window_size()//40)), bg='white')
+        self.label1.grid(row=1, column=0)
 
-        cfm.mainloop()
+        self.QRInfoFrame.after(60000, self.QRInfoFrame.destroy)
 
-    def showQR(self, name):
-        image = Image.open(f"./QR Codes/{name}.png")
-        image.thumbnail((int(self.QRWindow.winfo_width() * 200), int(self.QRWindow.winfo_width() * 200)))
-        photo = ImageTk.PhotoImage(image)  # Keep a reference to the PhotoImage object
-
-        image_label = Label(self.QRFrame, image=photo, bg='white')
-        image_label.image = photo  # Keep a reference to the PhotoImage object
-
-        image_label.grid(row=0, column=0, sticky='nsew')
+    def success(self, name="Yew Hong Yin"):
+        self.showQRCode(name= name)
+        self.show_success_label()
 
     def show_success_label(self):
-        self.showQRCode()
         self.successInfoFrame = tk.Frame(self.function_frame, bg="white")
         self.successInfoFrame.grid_propagate(False)
-        self.successInfoFrame.grid_rowconfigure(0, weight=4)
-        self.successInfoFrame.grid_rowconfigure(1, weight=1)
-        self.successInfoFrame.grid_rowconfigure(2, weight=2)
-        self.successInfoFrame.grid_rowconfigure(3, weight=1)
+        self.successInfoFrame.grid_rowconfigure(0, weight=1)
         self.successInfoFrame.grid_columnconfigure(0, weight=1)
-        self.successInfoFrame.grid(row=8, column=0, columnspan=3, rowspan=5, sticky='nsew')
-        label1 = Label(self.successInfoFrame, text="REGISTER SUCCESSFULLY", font=("Helvetica", int(self.get_window_size()//30), 'bold'), bg='white')
+        self.successInfoFrame.grid(row=6, column=2, columnspan=3, rowspan=5, sticky='nsew')
+        label1 = Label(self.successInfoFrame, text="REGISTER\nSUCCESSFULLY", font=("Helvetica", int(self.get_window_size()//30), 'bold'), bg='white', justify='center')
         label1.grid(row=0, column=0)
 
-        label2 = Label(self.successInfoFrame, text="QR HAS BEEN SENT TO YOUR WHATSAPP", font=("Helvetica", int(self.get_window_size()//50), 'bold'), bg='white')
-        label2.grid(row=2, column=0)
+        # label2 = Label(self.successInfoFrame, text="QR HAS BEEN SENT TO YOUR WHATSAPP", font=("Helvetica", int(self.get_window_size()//50), 'bold'), bg='white')
+        # label2.grid(row=2, column=0)
         
         self.successInfoFrame.after(5000, self.successInfoFrame.destroy)
 
@@ -600,7 +594,7 @@ class Registration:
         self.failInfoFrame.grid_rowconfigure(2, weight=2)
         self.failInfoFrame.grid_rowconfigure(3, weight=1)
         self.failInfoFrame.grid_columnconfigure(0, weight=1)
-        self.failInfoFrame.grid(row=8, column=0, columnspan=3, rowspan=5, sticky='nsew')
+        self.failInfoFrame.grid(row=6, column=2, columnspan=3, rowspan=5, sticky='nsew')
         
         if error == 401:
             label1 = Label(self.failInfoFrame, text="REGISTER FAILED", font=("Helvetica", int(self.get_window_size()//30), 'bold'), bg='white')
@@ -612,7 +606,7 @@ class Registration:
             label1 = Label(self.failInfoFrame, text="REGISTER FAILED", font=("Helvetica", int(self.get_window_size()//40), 'bold'), bg='white')
             label1.grid(row=0, column=0)
 
-            label2 = Label(self.failInfoFrame, text="INFORMATION INSERTED IN WRONG FORMAT", font=("Helvetica", int(self.get_window_size()//50), 'bold'), bg='white')
+            label2 = Label(self.failInfoFrame, text="INFORMATION INSERTED\nIN WRONG FORMAT", font=("Helvetica", int(self.get_window_size()//50), 'bold'), bg='white')
             label2.grid(row=2, column=0)
         
         self.failInfoFrame.after(5000, self.failInfoFrame.destroy)
