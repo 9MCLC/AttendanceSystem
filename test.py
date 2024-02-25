@@ -177,11 +177,12 @@ class Lobby:
         self.infoFrame.grid_rowconfigure(0, weight=1)
         self.infoFrame.grid_columnconfigure(0, weight=1)
 
-        successButton = Button(self.function_frame, text="SUCCESS", command=self.show_success_label, font=("Helvetica", self.get_window_size()//18, 'bold'), width=15, cursor="hand2", relief='groove')
-        successButton.place(relx=0, rely=0.3, anchor="center")
+        # Testing Purposes
+        # TestSuccessButton = Button(self.function_frame, text="SUCCESS", command=self.show_success_label, font=("Helvetica", self.get_window_size()//18, 'bold'), width=15, cursor="hand2", relief='groove')
+        # TestSuccessButton.place(relx=0, rely=0.3, anchor="center")
 
-        nameListButton = Button(self.function_frame, text="FAIL", command=self.show_fail_label, font=("Helvetica", self.get_window_size()//18, 'bold'), width=15, cursor="hand2", relief='groove')
-        nameListButton.place(relx=0, rely=0.4, anchor="center")
+        # TestFailButton = Button(self.function_frame, text="FAIL", command=self.show_fail_label, font=("Helvetica", self.get_window_size()//18, 'bold'), width=15, cursor="hand2", relief='groove')
+        # TestFailButton.place(relx=0, rely=0.4, anchor="center")
 
 
         self.video_source = 0
@@ -481,11 +482,12 @@ class Registration:
         self.infoFrame.grid_rowconfigure(0, weight=1)
         self.infoFrame.grid_columnconfigure(0, weight=1)
 
-        successButton = Button(self.function_frame, text="SUCCESS", command=self.success, font=("Helvetica", self.get_window_size()//18, 'bold'), width=15, cursor="hand2", relief='groove')
-        successButton.place(relx=0, rely=0.3, anchor="center")
+        # Testing Purposes
+        # TestSuccessButton = Button(self.function_frame, text="SUCCESS", command=self.success, font=("Helvetica", self.get_window_size()//18, 'bold'), width=15, cursor="hand2", relief='groove')
+        # TestSuccessButton.place(relx=0, rely=0.3, anchor="center")
 
-        nameListButton = Button(self.function_frame, text="FAIL", command=self.show_fail_label, font=("Helvetica", self.get_window_size()//18, 'bold'), width=15, cursor="hand2", relief='groove')
-        nameListButton.place(relx=0, rely=0.4, anchor="center")
+        # TestFailButton = Button(self.function_frame, text="FAIL", command=self.show_fail_label, font=("Helvetica", self.get_window_size()//18, 'bold'), width=15, cursor="hand2", relief='groove')
+        # TestFailButton.place(relx=0, rely=0.4, anchor="center")
 
         self.registerLabel = Label(self.function_frame, text="Register", font=("Helvetica", self.get_window_size()//15), bg='white')
         self.registerLabel.grid(row=0, column=1)
@@ -848,21 +850,28 @@ class NameList:
             else:
                 cfm = Tk()
                 width, height = cfm.winfo_screenwidth()/8, cfm.winfo_screenwidth()/16
-                center_x, center_y = int((cfm.winfo_screenwidth() - width) / 2), int((cfm.winfo_screenheight() - height) / 2)
-                cfm.geometry('%dx%d+%d+%d' % (width, height, center_x, center_y))
+                cfm.geometry('%dx%d+%d+%d' % (cfm.winfo_screenwidth()/8, cfm.winfo_screenwidth()/16, int((cfm.winfo_screenwidth() - width) / 2), int((cfm.winfo_screenheight() - height) / 2)))
                 cfm.title("Confirmation")
+                cfm.grid_rowconfigure(0, weight=1)
+                cfm.grid_rowconfigure(1, weight=1)
+                cfm.grid_rowconfigure(2, weight=1)
+                cfm.grid_columnconfigure(0, weight=1)
+                cfm.grid_columnconfigure(1, weight=4)
+                cfm.grid_columnconfigure(2, weight=1)
+                cfm.grid_columnconfigure(3, weight=4)
+                cfm.grid_columnconfigure(4, weight=1)
 
-                confirmationMessage_label = Label(cfm, text="Remove user's attendance", font=("Arial", 10))
-                confirmationMessage_label.place(x=0, y=0)
+                confirmationMessage_label = Label(cfm, text="Remove user's attendance", font=("Arial", 10), justify='center')
+                confirmationMessage_label.grid(row=0, column=0, columnspan=5, sticky='nsew')
 
-                confirmationDetails_label = Label(cfm, text=f"Name: {name}", font=("Arial", 10))
-                confirmationDetails_label.place(x=0, y=30)
+                confirmationDetails_label = Label(cfm, text=f"Name: {name}", font=("Arial", 10), justify='center')
+                confirmationDetails_label.grid(row=1, column=0, columnspan=5, sticky='nsew')
 
-                confirmButton = Button(cfm, text="Yes", command=clearUser)
-                confirmButton.place(x=0, y=60, width=width/2)
+                confirmButton = Button(cfm, text="Yes", command=clearUser, cursor="hand2", relief='groove')
+                confirmButton.grid(row=2, column=1, sticky='nsew')
 
-                closeButton = Button(cfm, text="Close", command=cfm.destroy)
-                closeButton.place(x=width/2, y=60, width=width/2)
+                closeButton = Button(cfm, text="Close", command=cfm.destroy, cursor="hand2", relief='groove')
+                closeButton.grid(row=2, column=3, sticky='nsew')
                     
                 cfm.mainloop()
         else:
@@ -883,25 +892,32 @@ class NameList:
             else:
                 cfm = Tk()
                 width, height = cfm.winfo_screenwidth()/8, cfm.winfo_screenwidth()/16
-                center_x, center_y = int((cfm.winfo_screenwidth() - width) / 2), int((cfm.winfo_screenheight() - height) / 2)
-                cfm.geometry('%dx%d+%d+%d' % (width, height, center_x, center_y))
+                cfm.geometry('%dx%d+%d+%d' % (cfm.winfo_screenwidth()/8, cfm.winfo_screenwidth()/16, int((cfm.winfo_screenwidth() - width) / 2), int((cfm.winfo_screenheight() - height) / 2)))
                 cfm.title("Confirmation")
+                cfm.grid_rowconfigure(0, weight=1)
+                cfm.grid_rowconfigure(1, weight=1)
+                cfm.grid_rowconfigure(2, weight=1)
+                cfm.grid_columnconfigure(0, weight=1)
+                cfm.grid_columnconfigure(1, weight=4)
+                cfm.grid_columnconfigure(2, weight=1)
+                cfm.grid_columnconfigure(3, weight=4)
+                cfm.grid_columnconfigure(4, weight=1)
 
-                confirmationMessage_label = Label(cfm, text="Mark user's attendance", font=("Arial", 10))
-                confirmationMessage_label.place(x=0, y=0)
+                confirmationMessage_label = Label(cfm, text="Mark user's attendance", font=("Arial", 10), justify='center')
+                confirmationMessage_label.grid(row=0, column=0, columnspan=5, sticky='nsew')
 
-                confirmationDetails_label = Label(cfm, text=f"Name: {name}", font=("Arial", 10))
-                confirmationDetails_label.place(x=0, y=30)
+                confirmationDetails_label = Label(cfm, text=f"Name: {name}", font=("Arial", 10), justify='center')
+                confirmationDetails_label.grid(row=1, column=0, columnspan=5, sticky='nsew')
 
-                confirmButton = Button(cfm, text="Yes", command=addUser)
-                confirmButton.place(x=0, y=60, width=width/2)
+                confirmButton = Button(cfm, text="Yes", command=addUser, cursor="hand2", relief='groove')
+                confirmButton.grid(row=2, column=1, sticky='nsew')
 
-                closeButton = Button(cfm, text="Close", command=cfm.destroy)
-                closeButton.place(x=width/2, y=60, width=width/2)
+                closeButton = Button(cfm, text="Close", command=cfm.destroy, cursor="hand2", relief='groove')
+                closeButton.grid(row=2, column=3, sticky='nsew')
                     
                 cfm.mainloop()
         else:
-            self.temp_msg(message="Please select a user")
+            self.temp_msg(message="PLEASE SELECT A USER")
 
     def remove(self):
         def deleteUser():
@@ -913,23 +929,30 @@ class NameList:
         if self.table.selection():
             cfm = Tk()
             width, height = cfm.winfo_screenwidth()/8, cfm.winfo_screenwidth()/16
-            center_x, center_y = int((cfm.winfo_screenwidth() - width) / 2), int((cfm.winfo_screenheight() - height) / 2)
-            cfm.geometry('%dx%d+%d+%d' % (width, height, center_x, center_y))
+            cfm.geometry('%dx%d+%d+%d' % (cfm.winfo_screenwidth()/8, cfm.winfo_screenwidth()/16, int((cfm.winfo_screenwidth() - width) / 2), int((cfm.winfo_screenheight() - height) / 2)))
             cfm.title("Confirmation")
+            cfm.grid_rowconfigure(0, weight=1)
+            cfm.grid_rowconfigure(1, weight=1)
+            cfm.grid_rowconfigure(2, weight=1)
+            cfm.grid_columnconfigure(0, weight=1)
+            cfm.grid_columnconfigure(1, weight=4)
+            cfm.grid_columnconfigure(2, weight=1)
+            cfm.grid_columnconfigure(3, weight=4)
+            cfm.grid_columnconfigure(4, weight=1)
                 
             name = self.table.item(self.table.focus())['values'][0]
 
-            confirmationMessage_label = Label(cfm, text="Are you sure to remove user?", font=("Arial", 10))
-            confirmationMessage_label.place(x=0, y=0)
+            confirmationMessage_label = Label(cfm, text="Are you sure to remove user?", font=("Arial", 10), justify='center')
+            confirmationMessage_label.grid(row=0, column=0, columnspan=5, sticky='nsew')
 
-            confirmationDetails_label = Label(cfm, text=f"Name: {name}", font=("Arial", 10))
-            confirmationDetails_label.place(x=0, y=height/3)
+            confirmationDetails_label = Label(cfm, text=f"Name: {name}", font=("Arial", 10), justify='center')
+            confirmationDetails_label.grid(row=1, column=0, columnspan=5, sticky='nsew')
 
-            confirmButton = Button(cfm, text="Yes", command=deleteUser)
-            confirmButton.place(x=0, y=height/3*2, width=width/2)
-    
-            closeButton = Button(cfm, text="Close", command=cfm.destroy)
-            closeButton.place(x=width/2, y=height/3*2, width=width/2)
+            confirmButton = Button(cfm, text="Yes", command=deleteUser, cursor="hand2", relief='groove')
+            confirmButton.grid(row=2, column=1, sticky='nsew')
+
+            closeButton = Button(cfm, text="Close", command=cfm.destroy, cursor="hand2", relief='groove')
+            closeButton.grid(row=2, column=3, sticky='nsew')
             cfm.mainloop()
         else:
             self.temp_msg(message='PLEASE SELECT A USER')
