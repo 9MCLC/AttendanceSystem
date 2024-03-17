@@ -10,14 +10,14 @@ from PIL import Image, ImageTk
 import os
 import re
 
-env = input('input your env: "dev or prod" ')
-if env == 'dev':
-    port = 5001
-elif env == 'prod':
-    port = 5000
+# env = input('input your env: "dev or prod" ')
+# if env == 'dev':
+#     port = 5001
+# elif env == 'prod':
+#     port = 5000
 
-apiEndpoint = f"http://192.168.0.119:{5001}"
-# apiEndpoint = f"http://124.13.168.178:{port}"
+# apiEndpoint = f"http://192.168.0.119:{5001}"
+apiEndpoint = f"http://124.13.168.178:{5000}"
 
 
 class Lobby:
@@ -55,12 +55,10 @@ class Lobby:
     def LaunchRegistration(self):
         self.window.destroy()
         Registration()
-        self.vid.release()
 
     def LaunchNameList(self):
         self.window.destroy()
         NameList()
-        self.vid.release()
 
     def get_window_size(self):
         window_size = min(self.window.winfo_width(), self.window.winfo_height())
@@ -431,11 +429,9 @@ class Registration:
             self.registerLabel.config(font=text_bold_font)
             self.name_Label.config(font=text_bold_font)
             self.phNumber_Label.config(font=text_bold_font)
-            self.dob_Label.config(font=text_bold_font)
             self.submitButton.config(font=("Helvetica", window_size//40, "bold"), width=window_size//60)
             self.name_Entry.config(font=entry_font)
             self.phNumber_Entry.config(font=entry_font)
-            self.dob_Entry.config(font=entry_font)
             self.infoFrame.grid(row=0, column=3, rowspan=6, sticky='nsew', pady=int(self.get_window_size()//18))
 
         def ph_on_entry_click(event):
@@ -447,28 +443,16 @@ class Registration:
             if self.phNumber_Entry.get() == "":
                 self.phNumber_Entry.insert(0, "(EG: 012-34567890)")
                 self.phNumber_Entry.config(fg='gray')
-        
-        def dob_on_entry_click(event):
-            if self.dob_Entry.get() == "(EG: 2003-12-01)":
-                self.dob_Entry.delete(0, "end")
-                self.dob_Entry.config(fg='black')
-
-        def dob_on_focus_out(event):
-            if self.dob_Entry.get() == "":
-                self.dob_Entry.insert(0, "(EG: 2003-12-01)")
-                self.dob_Entry.config(fg='gray')
         self.function_frame = tk.Frame(self.window, bg="white", bd=2, relief="solid")
         self.function_frame.grid(row=2, column=1, sticky="nsew")
         self.function_frame.grid_propagate(False)
         self.function_frame.grid_rowconfigure(0, weight=10)
-        self.function_frame.grid_rowconfigure(1, weight=7)
+        self.function_frame.grid_rowconfigure(1, weight=12)
         self.function_frame.grid_rowconfigure(2, weight=3)
-        self.function_frame.grid_rowconfigure(3, weight=7)
+        self.function_frame.grid_rowconfigure(3, weight=12)
         self.function_frame.grid_rowconfigure(4, weight=3)
-        self.function_frame.grid_rowconfigure(5, weight=7)
-        self.function_frame.grid_rowconfigure(6, weight=3)
-        self.function_frame.grid_rowconfigure(7, weight=3)
-        self.function_frame.grid_rowconfigure(8, weight=8)
+        self.function_frame.grid_rowconfigure(5, weight=3)
+        self.function_frame.grid_rowconfigure(6, weight=8)
         self.function_frame.grid_columnconfigure(0, weight=1)
         self.function_frame.grid_columnconfigure(1, weight=4)
         self.function_frame.grid_columnconfigure(2, weight=1)
@@ -478,7 +462,7 @@ class Registration:
         
         self.infoFrame = tk.Frame(self.function_frame, bg="white", bd=2, relief="solid")
         self.infoFrame.grid_propagate(False)
-        self.infoFrame.grid(row=0, column=3, rowspan=6, sticky='nsew', pady=int(self.get_window_size()//18))
+        self.infoFrame.grid(row=0, column=3, rowspan=4, sticky='nsew', pady=int(self.get_window_size()//18))
         self.infoFrame.grid_rowconfigure(0, weight=1)
         self.infoFrame.grid_columnconfigure(0, weight=1)
 
@@ -507,30 +491,18 @@ class Registration:
         self.phNumber_Entry.bind('<FocusOut>', ph_on_focus_out)
         self.phNumber_Entry.grid(row=3, column=1, sticky='nsew')
 
-        self.dob_Label = Label(self.function_frame, text="Date Of Birth", font=("Helvetica", self.get_window_size()//20), bg='white')
-        self.dob_Label.grid(row=5, column=0, sticky='e')
-
-        self.dob_Entry = Entry(self.function_frame, relief='solid', fg='gray', font=("Helvetica", self.get_window_size()//20), justify='center')
-        self.dob_Entry.insert(0, "(EG: 2003-12-01)")
-        self.dob_Entry.bind('<FocusIn>', dob_on_entry_click)
-        self.dob_Entry.bind('<FocusOut>', dob_on_focus_out)
-        self.dob_Entry.grid(row=5, column=1, sticky='nsew')
-
         self.submitButton = Button(self.function_frame, text="SUBMIT", command=self.Register, font=("Helvetica", self.get_window_size()//18, 'bold'), width=20, cursor="hand2", relief='groove')
-        self.submitButton.grid(row=7, column=1)
+        self.submitButton.grid(row=5, column=1)
 
     def Register(self):
         phNumberPattern = re.compile(r'^\d{3}-\d{7,8}$')
-        datePattern = re.compile(r'^\d{4}-\d{2}-\d{2}$')
         name_Input = self.name_Entry.get()
         phNumber_Input = self.phNumber_Entry.get() if phNumberPattern.match(self.phNumber_Entry.get()) else None
-        dob_Input = self.dob_Entry.get() if datePattern.match(self.dob_Entry.get()) else None
         
-        if all([name_Input, phNumber_Input, dob_Input]):
+        if all([name_Input, phNumber_Input]):
             body = {
                 "name": name_Input,
-                "phoneNumber": phNumber_Input,
-                "birthDate": dob_Input
+                "phoneNumber": phNumber_Input
             }
             userExist = requests.get(f'{apiEndpoint}/getUser', params=body)
             if userExist.json().get('rowCount') == 0:
@@ -545,7 +517,6 @@ class Registration:
 
                     self.name_Entry.delete(0, END)
                     self.phNumber_Entry.delete(0, END)
-                    self.dob_Entry.delete(0, END)
             else:
                 self.show_fail_label(401)
         else:
@@ -577,11 +548,17 @@ class Registration:
     def show_success_label(self):
         self.successInfoFrame = tk.Frame(self.function_frame, bg="white")
         self.successInfoFrame.grid_propagate(False)
-        self.successInfoFrame.grid_rowconfigure(0, weight=1)
+        self.successInfoFrame.grid_rowconfigure(0, weight=4)
+        self.successInfoFrame.grid_rowconfigure(1, weight=1)
+        self.successInfoFrame.grid_rowconfigure(2, weight=2)
+        self.successInfoFrame.grid_rowconfigure(3, weight=1)
         self.successInfoFrame.grid_columnconfigure(0, weight=1)
         self.successInfoFrame.grid(row=6, column=2, columnspan=3, rowspan=5, sticky='nsew')
-        label1 = Label(self.successInfoFrame, text="REGISTER\nSUCCESSFULLY", font=("Helvetica", int(self.get_window_size()//30), 'bold'), bg='white', justify='center')
+        label1 = Label(self.successInfoFrame, text="REGISTER", font=("Helvetica", int(self.get_window_size()//30), 'bold'), bg='white')
         label1.grid(row=0, column=0)
+
+        label2 = Label(self.successInfoFrame, text="SUCCESSFULLY", font=("Helvetica", int(self.get_window_size()//50), 'bold'), bg='white')
+        label2.grid(row=2, column=0)
 
         # label2 = Label(self.successInfoFrame, text="QR HAS BEEN SENT TO YOUR WHATSAPP", font=("Helvetica", int(self.get_window_size()//50), 'bold'), bg='white')
         # label2.grid(row=2, column=0)
