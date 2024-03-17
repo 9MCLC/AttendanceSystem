@@ -536,7 +536,7 @@ class Registration:
 
         self.QRImage_label.grid(row=0, column=0)
 
-        self.label1 = Label(self.QRInfoFrame, text=name, font=("Helvetica", int(self.get_window_size()//40)), bg='white')
+        self.label1 = Label(self.QRInfoFrame, text=f"9MCLC\n{name}", font=("Helvetica", int(self.get_window_size()//40)), bg='white')
         self.label1.grid(row=1, column=0)
 
         self.QRInfoFrame.after(60000, self.QRInfoFrame.destroy)
