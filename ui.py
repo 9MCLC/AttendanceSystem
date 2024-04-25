@@ -232,7 +232,7 @@ class Lobby:
         self.infoFrame.grid_rowconfigure(0, weight=1)
         self.infoFrame.grid_columnconfigure(0, weight=1)
 
-        self.video_source = 0
+        self.video_source = 1
         self.vid = cv2.VideoCapture(self.video_source)
         self.function_frame.bind("<Configure>", update_function)
         self.UUIDCooldown = []
