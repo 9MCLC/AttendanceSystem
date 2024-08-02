@@ -1,19 +1,18 @@
 from tkinter import *
 import tkinter as tk
-from tkinter import ttk
-import cv2
 from pyzbar.pyzbar import decode
 import requests
 import qrcode
-from datetime import datetime
 from PIL import Image, ImageTk
 import os
 import re
-# from lobby import Lobby
-# from namelist import NameList
+import json
 
-apiEndpoint = f"http://192.168.0.119:{5000}"
-# apiEndpoint = f"http://124.13.168.178:{5000}"
+config_path = os.path.join(os.path.dirname(__file__), 'config.json')
+with open(config_path, 'r') as config_file:
+    config = json.load(config_file)
+
+apiEndpoint = config['apiEndpoint']
 
 class Registration:
     def __init__(self, window=None):
